@@ -1,4 +1,7 @@
 from third_party.deepseek import DeepSeek
+import logging
+
+logger = logging.getLogger(__name__)
 
 class SubtitlesService:
     def __init__(self, topic):
@@ -27,6 +30,7 @@ class SubtitlesService:
             subtitles = deepseek.generate_subtitles(prompt)
             
         except Exception as e:
-            raise Exception(f"Error generating subtitles: {str(e)}")
+            logger.error(f"Error processing image: {e}")
+            raise
         
         return subtitles

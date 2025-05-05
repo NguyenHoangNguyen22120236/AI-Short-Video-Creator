@@ -41,7 +41,7 @@ class DeepSeek():
         data:dict = self.__make_api_call(prompt)
         
         if data.get('error'):
-            raise Exception(f"Error from API: {data['error']}")
+            raise Exception(f"Error from API Deepseek: {data['error']}")
         
         raw_sections = [
             section.strip() 
