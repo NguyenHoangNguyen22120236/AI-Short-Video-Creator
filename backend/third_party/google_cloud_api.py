@@ -8,7 +8,7 @@ class GoogleCloudAPI:
         pass
 
     def convert_text_to_speech(self, subtitle, language_code="en-US"):
-        print(subtitle)
+        
         client = texttospeech.TextToSpeechClient.from_service_account_file('gcp_key.json')
         
         input_text = texttospeech.SynthesisInput(text= subtitle)

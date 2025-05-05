@@ -5,13 +5,28 @@ class SubtitlesService:
         self.topic = topic
 
     def generate_subtitles(self):
-        prompt = f'''Write a 50-second story about {self.topic} to make a YouTube short video. 
-                    Just the story to tell (Like writing passage, only passage and no addtional information, 
-                    no need title). And then divide the script into smaller parts to use for different sences. 
-                    Seperate by ?????. No need to include the name scene.'''
-                    
-        deepseek = DeepSeek()
-        
-        subtitles = deepseek.generate_subtitles(prompt)
+        try:
+            prompt = f'''Write a 50-second story about {self.topic} to make a YouTube short video.  
+                        Just the story to tell (only the narrative passage, no titles, no labels).  
+                        Divide the script naturally into 5 sections for different scenes, separated by double line breaks (\n\n).  
+
+                        **Rules:**  
+                        - Do NOT label sections (no "Part 1", "Scene 1", etc.)  
+                        - Do NOT include any notes, examples, or markdown formatting (*, _)  
+                        - Only provide the raw story text split by \n\n  
+
+                        Example of desired format:  
+                        [First section of story]\n\n  
+                        [Second section of story]\n\n  
+                        [...]\n\n  
+                        [Fifth section of story]  
+
+                        Now write about: {self.topic}'''
+            deepseek = DeepSeek()
+            
+            subtitles = deepseek.generate_subtitles(prompt)
+            
+        except Exception as e:
+            raise Exception(f"Error generating subtitles: {str(e)}")
         
         return subtitles

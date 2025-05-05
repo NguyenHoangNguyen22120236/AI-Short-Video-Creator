@@ -1,10 +1,14 @@
-from backend.models.video import VideoModel
-from backend.models.audio import AudioModel
-from backend.models.subtitle import SubtitleModel
-from backend.models.image import ImageModel
-from backend.models.optional_adjustment import OptionalAdjustmentModel
-from backend.models.user import UserModel
+from models.video import VideoModel
+from models.audio import AudioModel
+from models.subtitle import SubtitleModel
+from models.image import ImageModel
+from models.optional_adjustment import OptionalAdjustmentModel
+from models.user import UserModel
 from moviepy.editor import ImageClip, AudioFileClip, concatenate_videoclips, CompositeVideoClip, TextClip
+from moviepy.config import change_settings
+
+IMAGEMAGIC_PATH = r"C:\Program Files\ImageMagick-7.1.1-Q16-HDRI\magick.exe"
+change_settings({"IMAGEMAGICK_BINARY": IMAGEMAGIC_PATH})
 
 class VideoService:
     def __init__(self, image_urls, audio_urls, subtitles):
@@ -22,16 +26,17 @@ class VideoService:
             
             img_clip = ImageClip(image_url).set_duration(duration)
             img_clip = img_clip.set_audio(audio_clip)
-            
-            subtitle_parts = self.__split_subtitle(self.subtitles[i], 3)  # Split subtitle into 3 parts
+                        
+            subtitle_parts = self.__split_subtitle(self.subtitles[i], 5)  # Split subtitle into 3 parts
             
             num_parts = len(subtitle_parts)
             part_duration = duration / num_parts
             
             txt_clips = []
+            print(img_clip.size[0])
             for idx, part in enumerate(subtitle_parts):
-                txt_clip = (TextClip(part, fontsize=60, color='white', bg_color='black')
-                        .set_position(('center', 'bottom'))
+                txt_clip = (TextClip(part, fontsize=35, color='white', bg_color='black')
+                        .set_position(('center', 0.8))
                         .set_start(idx * part_duration)
                         .set_duration(part_duration))
                 
@@ -42,12 +47,12 @@ class VideoService:
             video_clips.append(img_with_subtitles)
             
         final_video = concatenate_videoclips(video_clips, method="compose")
-        final_video.write_videofile(output_path, fps=self.fps)
+        final_video.write_videofile(output_path, fps=30, threads=10)
 
         return output_path
             
             
-    def __split_subtitle(subtitle, n):
+    def __split_subtitle(self, subtitle, n):
         words = subtitle.split()
         k = len(words) // n  # minimum words per part
         result = []

@@ -35,4 +35,4 @@ class RunwareAI:
         if response.status_code == 200:
             return response
         else:
-            return None
+            raise Exception(f"Error: {response.status_code} - {response.text}")

@@ -38,23 +38,31 @@ class DeepSeek():
               
                  
     def generate_subtitles(self, prompt) -> list:  
-        try:
-            data = self.__make_api_call(prompt)
+        data:dict = self.__make_api_call(prompt)
         
-        except requests.exceptions.RequestException as e:
-            print(f"An error occurred: {e}")
-            return None 
+        if data.get('error'):
+            raise Exception(f"Error from API: {data['error']}")
         
-        return data['choices'][0]['message']['content'].split('?????')
+        raw_sections = [
+            section.strip() 
+            for section in str(data['choices'][0]['message']['content']).split('\n\n') 
+            if section.strip()  # Removes empty/whitespace-only strings
+        ]
+        
+        cleaned_sections = [
+            section.replace("*", "").strip()  # Removes asterisks and trims whitespace
+            for section in raw_sections 
+            if section.strip()  # Also filters empty lines
+        ]
+        
+        return cleaned_sections
     
     
     def generate_prompt_for_image_generator(self, prompt) -> str:
-        try:
-            data = self.__make_api_call(prompt)
+        data:dict = self.__make_api_call(prompt)
         
-        except requests.exceptions.RequestException as e:
-            print(f"An error occurred: {e}")
-            return None 
+        if data.get('error'):
+            raise Exception(f"Error from API Deepseek: {data['error']}")
         
         return data['choices'][0]['message']['content']
     

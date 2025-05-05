@@ -1,6 +1,6 @@
 .venv/
 .env
-.backend/gcp_key.json
+backend/gcp_key.json
 *.pyc
 __pycache__/
 *.pyo
