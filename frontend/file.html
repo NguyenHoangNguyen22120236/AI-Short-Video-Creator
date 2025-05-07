@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Video Preview</title>
+  <style>
+    #preview-container {
+      position: relative;
+      width: 384px;
+      height: 512px;
+      background-color: black;
+      overflow: hidden;
+    }
+    #preview-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    #subtitle {
+      position: absolute;
+      bottom: 30px;
+      width: 100%;
+      text-align: center;
+      font-size: 24px;
+      color: white;
+      background-color: rgba(0,0,0,0.5);
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Video Preview</h2>
+  <div id="preview-container">
+    <img id="preview-image" src="" />
+    <div id="subtitle"></div>
+  </div>
+  <audio id="audio-player"></audio>
+  <button id="play-btn">Play Preview</button>
+
+  <script>
+    const manifest = {
+      "scenes":[{"image":"https://res.cloudinary.com/dfa9owyll/image/upload/v1746522537/f8x3adsqgsd7nhggvfgf.jpg","audio":"https://res.cloudinary.com/dfa9owyll/video/upload/v1746522538/xlzwuz9acgz1bgsipj6h.mp3","subtitles":["The glow of the screen illuminated","Alex’s tired eyes as lines of","code scrolled past. A script refused","to run—until she typed “import pandas.”","Errors vanished, revealing a tidy dataset."]},{"image":"https://res.cloudinary.com/dfa9owyll/image/upload/v1746522539/u12ieca75ygpeuk9gxaz.jpg","audio":"https://res.cloudinary.com/dfa9owyll/video/upload/v1746522540/mnyfqhzwijn5xlqfowkk.mp3","subtitles":["Across the café table, her teammate chuckled.","“Python’s like LEGO,” he said, stacking","blocks of syntax. Together, they wove","loops and libraries into a weather","app prototype before their coffees cooled."]},{"image":"https://res.cloudinary.com/dfa9owyll/image/upload/v1746522541/iaf3qrvlqwswwfvv9dd5.jpg","audio":"https://res.cloudinary.com/dfa9owyll/video/upload/v1746522542/ugmkn7hsvkienplsw8hl.mp3","subtitles":["Days later, their code fueled a","drone soaring over rice fields, capturing","crop data. Farmers gathered, phones open,","as AI mapped irrigation plans—harvests optimized","by a language they’d never seen."]},{"image":"https://res.cloudinary.com/dfa9owyll/image/upload/v1746522544/rdpjbm87fmgg0bwirqam.jpg","audio":"https://res.cloudinary.com/dfa9owyll/video/upload/v1746522546/qyhq3ux0jmuverysf2mb.mp3","subtitles":["Alex smiled, rewatching the drone footage.","An idea sparked: What else could","we build? Somewhere, another coder stared","at a blank screen, ready to","type “print(“Hello, world.”)” and begin."]}]
+    };
+
+    const previewImage = document.getElementById('preview-image');
+    const subtitleDiv = document.getElementById('subtitle');
+    const audioPlayer = document.getElementById('audio-player');
+    const playBtn = document.getElementById('play-btn');
+
+    let currentSceneIndex = 0;
+
+    async function playScene(index) {
+      if (index >= manifest.scenes.length) {
+        console.log("Preview finished.");
+        return;
+      }
+
+      const scene = manifest.scenes[index];
+      previewImage.src = scene.image;
+      subtitleDiv.textContent = ""; // clear subtitle
+      audioPlayer.src = scene.audio;
+
+      audioPlayer.play();
+
+      audioPlayer.onloadedmetadata = () => {
+        const duration = audioPlayer.duration;
+        const subtitleParts = scene.subtitles;
+        const partDuration = duration / subtitleParts.length;
+        console.log('Have')
+
+        let subtitleIdx = 0;
+
+        subtitleDiv.textContent = subtitleParts[subtitleIdx];
+        console.log('Have this');
+        subtitleIdx++;
+
+        const subtitleInterval = setInterval(() => {
+          if (subtitleIdx >= subtitleParts.length) {
+            clearInterval(subtitleInterval);
+            return;
+          }
+          console.log('Have this')
+          subtitleDiv.textContent = subtitleParts[subtitleIdx];
+          subtitleIdx++;
+        }, partDuration * 1000);
+      };
+
+      audioPlayer.onended = () => {
+        playScene(index + 1);
+      };
+    }
+
+    playBtn.addEventListener('click', () => {
+      currentSceneIndex = 0;
+      playScene(currentSceneIndex);
+    });
+  </script>
+</body>
+</html>
