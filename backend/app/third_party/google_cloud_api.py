@@ -1,7 +1,5 @@
 from google.cloud import texttospeech
 from dotenv import load_dotenv
-import os
-import json
 
 class GoogleCloudAPI:
     def __init__(self):

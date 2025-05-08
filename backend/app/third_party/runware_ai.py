@@ -2,8 +2,6 @@ from runware import Runware, IImageInference
 import asyncio
 import requests
 
-RUNWARE_API_KEY = "Qg59eidi3o7k4oOf8HT6VRCf8SqtyXE1"
-
 class RunwareAI:
     def __init__(self):
         pass

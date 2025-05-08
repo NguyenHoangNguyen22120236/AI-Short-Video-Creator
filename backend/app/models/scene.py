@@ -1,13 +1,13 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, ARRAY
 from sqlalchemy.sql import func
 from ._base import Base
 
-class Audio(Base):
-    __tablename__ = 'audios'
+class Scene(Base):
+    __tablename__ = 'scenes'
 
-    audio_id = Column(Integer, primary_key=True, autoincrement=True)
+    scence_id = Column(Integer, primary_key=True, autoincrement=True)
     video_id = Column(Integer, ForeignKey('videos.video_id'), nullable=False, index=True)
-    language_code = Column(String(50), nullable=False)
-    audio_url = Column(Text, nullable=False)
+    ordered_number = Column(Integer, nullable=False)    
+    subtitles = Column(ARRAY(String), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

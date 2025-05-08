@@ -12,7 +12,7 @@ class VideoController:
     def __init__(self):
         pass
     
-    async def preview_video(self, topic: str, language_code: str = "en-US"):
+    async def preview_video_first_time(self, topic: str, language_code: str = "en-US"):
         if not topic:
             return {"error": "Topic is required"}, 400
         

@@ -1,20 +1,15 @@
-class VideoModel:
-    _videos = []
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy.sql import func
+from ._base import Base
 
-    def __init__(self, user_id, topic, title, script, audio, subtitles, images):
-        self.video_id = max((video.video_id for video in VideoModel._videos), default=0) + 1
-        self.user_id = user_id
-        self.topic = topic
-        self.title = title
-        self.script = script
-        self.audio = audio
-        self.subtitles = subtitles
-        self.images = images
+class Video(Base):
+    __tablename__ = 'videos'
 
-        VideoModel._video_id += 1
-
-    def add_video(self):
-        VideoModel._videos.append(self)
-
-    def delete_video(self):
-        VideoModel._videos.remove(self)
+    video_id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
+    topic = Column(String(255), nullable=False)
+    video_url = Column(Text, nullable=False)
+    background_music_url = Column(Text, nullable=True)
+    text_effect = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

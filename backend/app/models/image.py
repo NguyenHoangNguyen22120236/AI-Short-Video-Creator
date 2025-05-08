@@ -1,10 +1,13 @@
-class ImageModel():
-    _images = []
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy.sql import func
+from ._base import Base
 
-    def __init__(self, video_id, image_url):
-        self.image_id = max((img.image_id for img in ImageModel._images if img.video_id == video_id), default=0) + 1
-            
-        self.video_id = video_id
-        self.image_url = image_url
+class Image(Base):
+    __tablename__ = 'images'
 
-        ImageModel._images.append(self)
+    image_id = Column(Integer, primary_key=True, autoincrement=True)
+    video_id = Column(Integer, ForeignKey('videos.video_id'), nullable=False, index=True)
+    ordered_number = Column(Integer, nullable=False)    
+    image_url = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

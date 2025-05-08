@@ -2,12 +2,15 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.sql import func
 from ._base import Base
 
-class Audio(Base):
-    __tablename__ = 'audios'
+class Sticker(Base):
+    __tablename__ = 'stickers'
 
-    audio_id = Column(Integer, primary_key=True, autoincrement=True)
+    sticker_id = Column(Integer, primary_key=True, autoincrement=True)
     video_id = Column(Integer, ForeignKey('videos.video_id'), nullable=False, index=True)
-    language_code = Column(String(50), nullable=False)
-    audio_url = Column(Text, nullable=False)
+    sticker_url = Column(Text, nullable=False)
+    position_x = Column(Integer, nullable=False)
+    position_y = Column(Integer, nullable=False)
+    width = Column(Integer, nullable=False)
+    height = Column(Integer, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

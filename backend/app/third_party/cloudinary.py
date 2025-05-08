@@ -5,7 +5,6 @@ import os
 
 load_dotenv()
 
-
 cloudinary.config( 
     cloud_name = "dfa9owyll", 
     api_key = os.getenv("CLOUDFLARE_API_KEY"),

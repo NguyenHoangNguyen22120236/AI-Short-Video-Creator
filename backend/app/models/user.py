@@ -1,11 +1,14 @@
-class UserModel:
-    _users = []
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy.sql import func
+from ._base import Base
 
-    def __init__(self, username, email, avatar=None):
-        self.user_id = max((user.user_id for user in UserModel._users), default=0) + 1
-        self.username = username
-        self.email = email
-        self.avatar = avatar
+class User(Base):
+    __tablename__ = 'users'
 
-        UserModel._user_id += 1
-        UserModel._users.append(self)
+    user_id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String(50), unique=True, nullable=False, index=True)
+    email = Column(String(100), unique=True, nullable=False, index=True)
+    password_hash = Column(String(128), nullable=False)
+    avatar_url = Column(String(255), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
