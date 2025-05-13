@@ -72,6 +72,8 @@ class VideoService:
         final_video = concatenate_videoclips(video_clips, method="compose")
         final_video.write_videofile(output_path, fps=24, threads=10, preset='ultrafast', bitrate='1000k')
 
+        sticker_clip: ImageClip = ImageClip('d').set_duration(duration)
+        sticker_clip = sticker_clip.set_position()
         return output_path
             
             

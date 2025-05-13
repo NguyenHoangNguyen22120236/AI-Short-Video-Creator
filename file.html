@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Video Preview with Stickers</title>
+  <style>
+    #preview-container {
+      position: relative;
+      width: 384px;
+      height: 512px;
+      background-color: black;
+      overflow: hidden;
+    }
+    #preview-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    #subtitle {
+      position: absolute;
+      bottom: 30px;
+      width: 100%;
+      text-align: center;
+      font-size: 24px;
+      color: white;
+      background-color: rgba(0,0,0,0.5);
+      padding: 5px;
+    }
+    .sticker {
+      position: absolute;
+      cursor: move;
+      width: 50px;
+      height: 50px;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <h2>Video Preview with Stickers</h2>
+  <div id="preview-container">
+    <img id="preview-image" src="" />
+    <div id="subtitle"></div>
+  </div>
+  <audio id="audio-player"></audio>
+  <button id="play-btn">Play Preview</button>
+  <button id="pause-btn">Pause Preview</button>
+  
+  <!-- Example Stickers -->
+  <div class="sticker" id="sticker-1" draggable="true" style="background-color: red;"></div>
+  <div class="sticker" id="sticker-2" draggable="true" style="background-color: blue;"></div>
+
+  <script>
+    let manifest;
+
+    const previewImage = document.getElementById('preview-image');
+    const subtitleDiv = document.getElementById('subtitle');
+    const audioPlayer = document.getElementById('audio-player');
+    const playBtn = document.getElementById('play-btn');
+    const pauseBtn = document.getElementById('pause-btn');
+    const stickers = document.querySelectorAll('.sticker');
+
+    let currentSceneIndex = 0;
+
+    async function fetchVideoPreview() {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/video/preview_video_first_time?topic=Vietnamese&language_code=vi-VN');
+        console.log(response);
+        const data = await response.json();
+        console.log(data);
+        manifest = data;
+        playScene(currentSceneIndex);
+      } catch (error) {
+        console.error('Error fetching video preview:', error);
+      }
+    }
+
+    async function playScene(index) {
+      if (index >= manifest.scenes.length) {
+        console.log("Preview finished.");
+        return;
+      }
+
+      const scene = manifest.scenes[index];
+      previewImage.src = scene.image;
+      subtitleDiv.textContent = ""; // clear subtitle
+      audioPlayer.src = scene.audio;
+
+      audioPlayer.play();
+
+      audioPlayer.onloadedmetadata = () => {
+        const duration = audioPlayer.duration;
+        const subtitleParts = scene.subtitles;
+        const partDuration = duration / subtitleParts.length;
+
+        let subtitleIdx = 0;
+
+        subtitleDiv.textContent = subtitleParts[subtitleIdx];
+        subtitleIdx++;
+
+        const subtitleInterval = setInterval(() => {
+          if (subtitleIdx >= subtitleParts.length) {
+            clearInterval(subtitleInterval);
+            return;
+          }
+          subtitleDiv.textContent = subtitleParts[subtitleIdx];
+          subtitleIdx++;
+        }, partDuration * 1000);
+      };
+
+      audioPlayer.onended = () => {
+        playScene(index + 1);
+      };
+    }
+
+    // Enable drag and drop functionality
+    stickers.forEach(sticker => {
+      sticker.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('stickerId', e.target.id);
+      });
+    });
+
+    const previewContainer = document.getElementById('preview-container');
+    previewContainer.addEventListener('dragover', (e) => {
+      e.preventDefault(); 
+    });
+
+    previewContainer.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const stickerId = e.dataTransfer.getData('stickerId');
+      const sticker = document.getElementById(stickerId);
+      
+      const rect = previewContainer.getBoundingClientRect();
+      const x = e.clientX - rect.left - (sticker.offsetWidth / 2);
+      const y = e.clientY - rect.top - (sticker.offsetHeight / 2);
+
+      sticker.style.left = `${x}px`;
+      sticker.style.top = `${y}px`;
+    });
+
+    // Play button click handler
+    playBtn.addEventListener('click', () => {
+      fetchVideoPreview();  // Fetch video data when the button is clicked
+    });
+
+    // Pause button click handler
+    pauseBtn.addEventListener('click', () => {
+      if (audioPlayer.paused) {
+        audioPlayer.play();  // Resume audio if it was paused
+        pauseBtn.textContent = "Pause Preview";
+      } else {
+        audioPlayer.pause();  // Pause audio
+        pauseBtn.textContent = "Resume Preview";
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,17 +1,15 @@
-#from fastapi import FastAPI
-#from routes.video import video_router
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from routes.video import video_router
 
-#app = FastAPI()
-#app.include_router(video_router, prefix="/api/video", tags=["video"])
+app = FastAPI()
 
-from third_party.deepseek import DeepSeek
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://127.0.0.1:5500"],  # Frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
+)
 
-def main():
-    # Initialize the DeepSeeker API client
-    deep_seek = DeepSeek()
-    subs = deep_seek.generate_subtitles("Python Programming")
-    
-    print(subs)
-    
-if __name__ == "__main__":
-    main()
+app.include_router(video_router, prefix="/api/video", tags=["video"])

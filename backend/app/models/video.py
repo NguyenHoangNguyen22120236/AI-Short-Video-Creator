@@ -11,5 +11,6 @@ class Video(Base):
     video_url = Column(Text, nullable=False)
     background_music_url = Column(Text, nullable=True)
     text_effect = Column(Text, nullable=True)
+    thumbnail_url = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

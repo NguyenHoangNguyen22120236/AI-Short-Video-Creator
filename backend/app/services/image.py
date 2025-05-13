@@ -15,7 +15,9 @@ class ImageService:
             # Generate image for each part of the script
             for i, subtitle in enumerate(subtitles):
                 prompt_deepseek = f'''Change the following passage sence into a prompt for stability AI to understand and 
-                                        generate image that is suitable with this sence (Just give the prompt, from 10 - 15 words):{subtitle}'''
+                                        generate image that is suitable with this sence (Just give the prompt, from 10 - 15 words):{subtitle}.
+                                        
+                                        The prompt should be in English'''
                 promt_atability_ai = deepseek.generate_prompt_for_image_generator(prompt=prompt_deepseek)
 
                 response = runware_ai.generate_image(prompt=promt_atability_ai)

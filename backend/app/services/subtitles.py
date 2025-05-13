@@ -4,8 +4,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 class SubtitlesService:
-    def __init__(self, topic):
+    def __init__(self, topic, language_code="en-US"):
         self.topic = topic
+        self.language_code = language_code
 
     async def generate_subtitles(self):
         try:
@@ -25,7 +26,7 @@ class SubtitlesService:
                         [...]\n\n  
                         [Fifth section of story]  
 
-                        Now write about: {self.topic}'''
+                        Now write about: {self.topic}. Write in {'English' if self.language_code == 'en-US' else 'Vietnamese'} language.'''
             deepseek = DeepSeek()
             
             subtitles = deepseek.generate_subtitles(prompt)

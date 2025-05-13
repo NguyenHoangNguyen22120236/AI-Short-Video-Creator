@@ -10,7 +10,7 @@ from app.models import Base
 from dotenv import load_dotenv
 
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL_ALEMBIC")
 
 from alembic import context
 
