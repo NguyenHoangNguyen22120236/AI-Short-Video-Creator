@@ -1,0 +1,64 @@
+.create-button {
+    background-color: #2e2e2e;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.create-button:hover {
+  transform: scale(1.05);
+  background-color: #616161; /* darker shade on hover */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.main-text {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #FFFFFF;
+}
+
+.create-button .extra-text {
+    font-size: 1.2rem;
+    color: #CDCDCD;
+}
+
+.see-all {
+    font-size: 1.2rem;
+    color: #EEEEEE;
+    font-weight: bold;
+}
+
+.card {
+    background-color: #2D2D2D;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    color: #CDCDCD;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+  transform: scale(1.05);
+  background-color: #616161; /* darker shade on hover */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.thumbnail {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.dots {
+  font-size: 1.5rem;
+  color: white;
+}

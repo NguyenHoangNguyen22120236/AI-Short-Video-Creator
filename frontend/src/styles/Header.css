@@ -1,0 +1,26 @@
+
+.header {
+    padding: 20px 50px 20px 50px;
+    background-color: #2D2D2D;
+    border-bottom: 2px solid #6C6C6C;
+}
+
+.logo {
+    width: 30px;
+    height: 40px;
+}
+
+.user {
+  width: 50px;            /* or any size you want */
+  height: 50px;
+  border-radius: 50%;      /* makes it a perfect circle */
+  overflow: hidden;        /* ensures image doesn't overflow */
+  border: 2px solid #ccc;  /* optional: border around circle */
+  background-color: #FFFFFF;
+}
+
+.user img {
+  width: 70%;
+  height: 70%;
+  object-fit: cover;       /* keeps the image nicely cropped */
+}
