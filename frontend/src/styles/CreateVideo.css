@@ -1,0 +1,47 @@
+.input-box {
+  background-color: #202020;
+  border: 1px solid #EEEEEE66;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.input-box textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #FFF9F9;
+  resize: none;
+  outline: none;
+  font-size: 1.2rem;
+  height: 12vh;
+}
+
+.char-limit{
+    color: #FFF9F999;
+    font-size: 1.2rem
+}
+
+.btn {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #aaa;
+  background: transparent;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.btn:hover {
+  background: #333;
+}
+
+.btn-primary {
+  background-color: #a259ff;
+  border: none;
+  font-weight: bold;
+}
+
+.btn-primary:hover {
+  background-color: #8f3dff;
+}

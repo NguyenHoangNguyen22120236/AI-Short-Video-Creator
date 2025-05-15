@@ -11,16 +11,16 @@
 }
 
 .user {
-  width: 50px;            /* or any size you want */
+  width: 50px;            
   height: 50px;
-  border-radius: 50%;      /* makes it a perfect circle */
-  overflow: hidden;        /* ensures image doesn't overflow */
-  border: 2px solid #ccc;  /* optional: border around circle */
+  border-radius: 50%;      
+  overflow: hidden;        
+  border: 2px solid #ccc;  
   background-color: #FFFFFF;
 }
 
 .user img {
   width: 70%;
   height: 70%;
-  object-fit: cover;       /* keeps the image nicely cropped */
+  object-fit: cover;      
 }
