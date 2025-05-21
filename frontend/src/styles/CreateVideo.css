@@ -45,3 +45,41 @@
 .btn-primary:hover {
   background-color: #8f3dff;
 }
+
+.language-selector {
+  color: #989898;
+  font-weight: 600 ;
+  font-size: 1.2rem;
+}
+
+.language-selector select {
+  margin-left: 10px;
+  padding: 5px 8px;
+  background-color: #1e1e1e;
+  border: 1px solid #555;
+  color: #EEEEEECC ;
+  border-radius: 4px;
+}
+
+.custom-modal .modal-header {
+  background-image: linear-gradient(#EC6769, #B05454, #6D3F3F);  
+  color: white;
+  font-weight: bold;
+}
+
+.custom-modal .modal-body {
+  background-color: #282c34; /* dark background */
+  color: white;         
+  max-height: 60vh; 
+  overflow-y: auto;
+}
+
+.topic-btn{
+  padding: 6px 8px;
+  border: 1px solid white;
+  background: transparent;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s;
+}
