@@ -1,14 +1,31 @@
 import '../styles/CreateVideo.css';
-import { useState } from 'react';
-import Button from 'react-bootstrap/Button';
+import { useState, useEffect } from 'react';
 import Modal from 'react-bootstrap/Modal';
 
-const trendyTopics = Array(30).fill('Spiderman');
 
 export default function CreateVideo() {
     const [topic, setTopic] = useState('');
     const [language, setLanguage] = useState('English');
     const [showModal, setShowModal] = useState(false);
+    const [trendyTopics, setTrendyTopics] = useState([]);
+    const [location, setLocation] = useState('US');
+
+    useEffect(() => {
+        const fetchTrendyTopics = async () => {
+            setTrendyTopics([]);
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/api/trendy_fetcher/fetch_trends?location=${location}`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                setTrendyTopics(data['trendy_topics']);
+            } catch (error) {
+                console.error('Error fetching trendy topics:', error);
+            }
+        };
+        fetchTrendyTopics();
+    }, [location]);
 
     const handleTopicClick = (selected) => {
         setTopic(selected);
@@ -51,14 +68,24 @@ export default function CreateVideo() {
                     className='custom-modal'>
                     <Modal.Header closeButton>
                         <Modal.Title>Trendy Topics</Modal.Title>
+                        <select 
+                            className='location-selector'
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                        >
+                            <option value="US">US</option>
+                            <option value="VN">Vietnam</option>
+                        </select>
                     </Modal.Header>
 
                     <Modal.Body className='d-flex gap-3 flex-wrap justify-content-start align-items-center'>
-                        {trendyTopics.map((item, index) => (
+                        {setTrendyTopics.length > 0 ? trendyTopics.map((item, index) => (
                         <button key={index} className="topic-btn" onClick={() => handleTopicClick(item)}>
                             {item}
                         </button>
-                        ))}
+                        )) : (
+                            <h3 className='text-white'>Loading trendy topics...</h3>
+                        )}
                     </Modal.Body>
                 </Modal>
             )}

@@ -83,3 +83,14 @@
   cursor: pointer;
   transition: background 0.3s;
 }
+
+.location-selector {
+  margin-left: 10px;
+  padding: 5px 8px;
+  background-color: #1e1e1e;
+  border: 1px solid #555;
+  color: #EEEEEECC ;
+  border-radius: 4px;
+  font-weight: 600 ;
+  font-size: 1rem;
+}

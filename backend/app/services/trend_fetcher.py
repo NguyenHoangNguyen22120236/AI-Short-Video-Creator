@@ -1,11 +1,11 @@
 from third_party.serp_api_google_trend import SerpAPIGoogleTrend
 
 class TrendFetcherService:
-    def __init__(self, location):
-        self.location = location
+    def __init__(self):
+        pass
 
-    def fetch_trends(self):
+    def fetch_trends(self, location):
         serp_api_google_trend = SerpAPIGoogleTrend()
-        data = serp_api_google_trend.get_trending_searches(self.location)
+        data = serp_api_google_trend.get_trending_searches(location)
         
-        return data
+        return [trend["query"] for trend in data]

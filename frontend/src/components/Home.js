@@ -11,14 +11,19 @@ export default function Home() {
     const [videos, setVideos] = useState([]);
 
     useEffect(() => {
-        console.log('Fetching video history...');
-        // Fetch the history items from the server
-        fetch('http://127.0.0.1:8000/api/video/get_videos_history')
-            .then(response => response.json())
-            .then(data => {
-                console.log('Fetched video history:', data.videos);
-                setVideos(data.videos)})
-            .catch(error => console.error('Error fetching history:', error));
+        const fetchVideos = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/video/get_videos_history');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                setVideos(data.videos);
+            } catch (error) {
+                console.error('Error fetching history:', error);
+            }
+        }
+        fetchVideos();
     }, []);
 
     
