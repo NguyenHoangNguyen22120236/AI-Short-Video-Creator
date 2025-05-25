@@ -1,0 +1,13 @@
+.controls {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 8px;
+  border-radius: 8px;
+  color: white;
+}

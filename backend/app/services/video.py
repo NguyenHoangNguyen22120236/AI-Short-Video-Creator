@@ -90,3 +90,41 @@ class VideoService:
             start = end
 
         return result
+    
+    def create_video_no_subtitles(self):
+        video_clips = []
+        subtitles = []
+        output_path = "output.mp4"
+        current_time = 0
+
+        for i, (image_url, audio_url, subtitle_text) in enumerate(zip(self.image_urls, self.audio_urls, self.subtitles)):
+            audio_clip = AudioFileClip(audio_url)
+            duration = audio_clip.duration
+
+            # Split subtitle into 2 or 3 parts depending on length
+            num_parts = max(1, int(duration // 2.5))  # each subtitle part ~2.5s
+            parts = self.__split_subtitle(subtitle_text, 5)
+
+            part_duration = duration / len(parts)
+
+            for part in parts:
+                subtitle = {
+                    "text": part,
+                    "start": round(current_time, 2),
+                    "end": round(current_time + part_duration, 2)
+                }
+                subtitles.append(subtitle)
+                current_time += part_duration
+
+            img_clip = ImageClip(image_url).set_duration(duration)
+            img_clip = img_clip.set_audio(audio_clip)
+            video_clips.append(img_clip)
+
+        final_video = concatenate_videoclips(video_clips, method="compose")
+        final_video.write_videofile(output_path, fps=24, threads=10, preset='ultrafast', bitrate='1000k')
+
+        return {
+            "video": output_path,
+            "duration": round(final_video.duration, 2),
+            "subtitles": subtitles
+        }
