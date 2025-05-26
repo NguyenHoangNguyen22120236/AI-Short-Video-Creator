@@ -1,0 +1,21 @@
+import '../styles/TextEffect.css';
+
+export default function TextEffect({textEffects, selectedEffect, setSelectedEffect}) {
+    return (
+        <div className="text-effect-panel">
+            <label htmlFor="textEffect">Text Effect</label>
+            <select
+            id="textEffect"
+            value={selectedEffect}
+            onChange={(e) => setSelectedEffect(e.target.value)}
+            >
+            {textEffects.map((effect) => (
+                <option key={effect} value={effect}>
+                {effect}
+                </option>
+            ))}
+            </select>
+        </div>
+        
+    )
+}

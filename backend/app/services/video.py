@@ -56,7 +56,6 @@ class VideoService:
             part_duration = duration / num_parts
             
             txt_clips = []
-            print(img_clip.size[0])
             for idx, part in enumerate(subtitle_parts):
                 txt_clip = (TextClip(part, fontsize=35, color='white', bg_color='black')
                         .set_position((0,0.7), relative=True)
@@ -101,8 +100,7 @@ class VideoService:
             audio_clip = AudioFileClip(audio_url)
             duration = audio_clip.duration
 
-            # Split subtitle into 2 or 3 parts depending on length
-            num_parts = max(1, int(duration // 2.5))  # each subtitle part ~2.5s
+            # Split subtitle into 5 parts
             parts = self.__split_subtitle(subtitle_text, 5)
 
             part_duration = duration / len(parts)

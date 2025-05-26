@@ -1,6 +1,7 @@
 import '../styles/PreviewVideo.css';
 import { useEffect, useState, useRef } from 'react';
 import applyEffect from '../utils/applyEffect';
+import EditModal from './EditModal';
 
 const data = {
   'video': 'https://res.cloudinary.com/dfa9owyll/video/upload/v1748136943/q4xi4jazlxvlsxirvfij.mp4', 
@@ -29,6 +30,7 @@ const data = {
 };
 
 const textEffects = ['Fade', 'Slide In', 'Scale', 'Typewriter'];
+const stickerOptions = ['stickers/bear.png', 'stickers/bear.png'];
 
 export default function PreviewVideo() {
   const videoRef = useRef(null);
@@ -38,6 +40,9 @@ export default function PreviewVideo() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedEffect, setSelectedEffect] = useState('Fade');
   const [currentText, setCurrentText] = useState('');
+
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
 
   useEffect(() => {
     const video = videoRef.current;
@@ -63,7 +68,7 @@ export default function PreviewVideo() {
           subtitleEl.innerText = subtitle.text;
           subtitleEl.style.opacity = '1';
 
-          applyEffect(subtitleEl, selectedEffect, subtitle.end - currentTime, currentText);
+          applyEffect(subtitleEl, selectedEffect, subtitle.end - currentTime, currentText, video);
         }
       } else {
         subtitleEl.innerText = '';
@@ -80,8 +85,8 @@ export default function PreviewVideo() {
     return () => cancelAnimationFrame(animationFrameId);
   }, [isPlaying, selectedEffect, currentText]);
 
+
   const handlePlay = () => {
-    setCurrentText('');
     videoRef.current?.play();
     setIsPlaying(true);
   };
@@ -91,40 +96,27 @@ export default function PreviewVideo() {
     setIsPlaying(false);
   };
 
+  const handleApplyTextEffect = (effect) => {
+    setSelectedEffect(effect);
+    playAgain();
+  };
+
+  const playAgain = () => {
+    setCurrentText('');
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play();
+      setIsPlaying(true);
+    }
+  }
+
   return (
-    <div style={{ width: 384 }}>
-      <div style={{ marginBottom: '10px' }}>
-        <label style={{ marginRight: '10px' }}>Text Effect: </label>
-        <select
-          value={selectedEffect}
-          onChange={(e) => setSelectedEffect(e.target.value)}
-        >
-          {textEffects.map((effect) => (
-            <option key={effect} value={effect}>
-              {effect}
-            </option>
-          ))}
-        </select>
-      </div>
+    <div className='d-flex flex-column align-items-center justify-content-center text-white'>
 
       <div style={{ position: 'relative', width: 384, height: 512 }}>
-        <canvas ref={canvasRef} width={384} height={512} style={{ border: '1px solid #444' }} />
+        <canvas ref={canvasRef} width={384} height={512} style={{ border: '1px solid #444' }}/>
 
-        <div
-          ref={subtitleRef}
-          style={{
-            position: 'absolute',
-            bottom: 20,
-            width: '100%',
-            textAlign: 'center',
-            color: 'white',
-            fontSize: '20px',
-            fontFamily: 'Arial',
-            pointerEvents: 'none',
-            opacity: 0,
-            whiteSpace: 'pre-wrap',
-          }}
-        ></div>
+        <div ref={subtitleRef} className='subtitle'></div>
 
         <video
           ref={videoRef}
@@ -138,6 +130,17 @@ export default function PreviewVideo() {
         <button onClick={handlePlay}>Play</button>
         <button onClick={handlePause}>Pause</button>
       </div>
+
+      <button className="edit-button p2" onClick={() => setIsEditOpen(true)}>
+        Edit
+      </button>
+
+      {isEditOpen && (
+        <EditModal
+          onClose={() => setIsEditOpen(false)}
+          onApplyTextEffect={handleApplyTextEffect}
+        />
+      )}
     </div>
   );
 }
