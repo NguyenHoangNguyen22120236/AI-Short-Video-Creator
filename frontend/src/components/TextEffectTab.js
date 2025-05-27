@@ -1,6 +1,6 @@
-import '../styles/TextEffect.css';
+import '../styles/TextEffectTab.css';
 
-export default function TextEffect({textEffects, selectedEffect, setSelectedEffect}) {
+export default function TextEffectTab({textEffects, selectedEffect, setSelectedEffect}) {
     return (
         <div className="text-effect-panel">
             <label htmlFor="textEffect">Text Effect</label>

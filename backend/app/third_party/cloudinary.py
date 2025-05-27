@@ -17,12 +17,17 @@ class CloudinaryService:
         pass
     
     def upload_image(self, file_path):
-        print('file_path: ',file_path)
         upload_result:dict = cloudinary.uploader.upload(file_path, resource_type="image")
-        print('upload image url: ',upload_result)
         return upload_result.get("secure_url")
     
     def upload_video(self, file_path):
         upload_result:dict = cloudinary.uploader.upload(file_path, resource_type="video")
-        print('upload video url: ',upload_result)
         return upload_result.get("secure_url")
+    
+    def upload_audio(self, file_path):
+        try:
+            upload_result:dict = cloudinary.uploader.upload(file_path, resource_type="video")  # or "auto"
+            return upload_result.get("secure_url")
+        except Error as e:
+            print("Cloudinary upload failed:", e)
+            raise

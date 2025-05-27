@@ -33,114 +33,114 @@ const textEffects = ['Fade', 'Slide In', 'Scale', 'Typewriter'];
 const stickerOptions = ['stickers/bear.png', 'stickers/bear.png'];
 
 export default function PreviewVideo() {
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const subtitleRef = useRef(null);
+    const videoRef = useRef(null);
+    const canvasRef = useRef(null);
+    const subtitleRef = useRef(null);
 
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [selectedEffect, setSelectedEffect] = useState('Fade');
-  const [currentText, setCurrentText] = useState('');
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [selectedEffect, setSelectedEffect] = useState('Fade');
+    const [currentText, setCurrentText] = useState('');
 
-  const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
 
 
-  useEffect(() => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    const subtitleEl = subtitleRef.current;
+    useEffect(() => {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      const subtitleEl = subtitleRef.current;
 
-    let animationFrameId;
+      let animationFrameId;
 
-    const render = () => {
-      if (video.paused || video.ended) return;
+      const render = () => {
+        if (video.paused || video.ended) return;
 
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      const currentTime = video.currentTime;
-      const subtitle = data.subtitles.find(
-        (sub) => currentTime >= sub.start && currentTime <= sub.end
-      );
+        const currentTime = video.currentTime;
+        const subtitle = data.subtitles.find(
+          (sub) => currentTime >= sub.start && currentTime <= sub.end
+        );
 
-      if (subtitle) {
-        if (currentText !== subtitle.text) {
-          setCurrentText(subtitle.text);
-          subtitleEl.innerText = subtitle.text;
-          subtitleEl.style.opacity = '1';
+        if (subtitle) {
+          if (currentText !== subtitle.text) {
+            setCurrentText(subtitle.text);
+            subtitleEl.innerText = subtitle.text;
+            subtitleEl.style.opacity = '1';
 
-          applyEffect(subtitleEl, selectedEffect, subtitle.end - currentTime, currentText, video);
+            applyEffect(subtitleEl, selectedEffect, subtitle.end - currentTime, currentText, video);
+          }
+        } else {
+          subtitleEl.innerText = '';
+          subtitleEl.style.opacity = '0';
         }
-      } else {
-        subtitleEl.innerText = '';
-        subtitleEl.style.opacity = '0';
+
+        animationFrameId = requestAnimationFrame(render);
+      };
+
+      if (isPlaying) {
+        render();
       }
 
-      animationFrameId = requestAnimationFrame(render);
+      return () => cancelAnimationFrame(animationFrameId);
+    }, [isPlaying, selectedEffect, currentText]);
+
+
+    const handlePlay = () => {
+      videoRef.current?.play();
+      setIsPlaying(true);
     };
 
-    if (isPlaying) {
-      render();
+    const handlePause = () => {
+      videoRef.current?.pause();
+      setIsPlaying(false);
+    };
+
+    const handleApplyTextEffect = (effect) => {
+      setSelectedEffect(effect);
+      playAgain();
+    };
+
+    const playAgain = () => {
+      setCurrentText('');
+      if (videoRef.current) {
+        videoRef.current.currentTime = 0;
+        videoRef.current.play();
+        setIsPlaying(true);
+      }
     }
 
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [isPlaying, selectedEffect, currentText]);
+    return (
+      <div className='d-flex flex-column align-items-center justify-content-center text-white'>
 
+        <div style={{ position: 'relative', width: 384, height: 512 }}>
+          <canvas ref={canvasRef} width={384} height={512} style={{ border: '1px solid #444' }}/>
 
-  const handlePlay = () => {
-    videoRef.current?.play();
-    setIsPlaying(true);
-  };
+          <div ref={subtitleRef} className='subtitle'></div>
 
-  const handlePause = () => {
-    videoRef.current?.pause();
-    setIsPlaying(false);
-  };
+          <video
+            ref={videoRef}
+            src={data.video}
+            style={{ display: 'none' }}
+            onLoadedMetadata={() => setIsPlaying(false)}
+          />
+        </div>
 
-  const handleApplyTextEffect = (effect) => {
-    setSelectedEffect(effect);
-    playAgain();
-  };
+        <div style={{ marginTop: '10px' }}>
+          <button onClick={handlePlay}>Play</button>
+          <button onClick={handlePause}>Pause</button>
+        </div>
 
-  const playAgain = () => {
-    setCurrentText('');
-    if (videoRef.current) {
-      videoRef.current.currentTime = 0;
-      videoRef.current.play();
-      setIsPlaying(true);
-    }
-  }
+        <button className="edit-button p2" onClick={() => setIsEditOpen(true)}>
+          Edit
+        </button>
 
-  return (
-    <div className='d-flex flex-column align-items-center justify-content-center text-white'>
-
-      <div style={{ position: 'relative', width: 384, height: 512 }}>
-        <canvas ref={canvasRef} width={384} height={512} style={{ border: '1px solid #444' }}/>
-
-        <div ref={subtitleRef} className='subtitle'></div>
-
-        <video
-          ref={videoRef}
-          src={data.video}
-          style={{ display: 'none' }}
-          onLoadedMetadata={() => setIsPlaying(false)}
-        />
+        {isEditOpen && (
+          <EditModal
+            onClose={() => setIsEditOpen(false)}
+            onApplyTextEffect={handleApplyTextEffect}
+          />
+        )}
       </div>
-
-      <div style={{ marginTop: '10px' }}>
-        <button onClick={handlePlay}>Play</button>
-        <button onClick={handlePause}>Pause</button>
-      </div>
-
-      <button className="edit-button p2" onClick={() => setIsEditOpen(true)}>
-        Edit
-      </button>
-
-      {isEditOpen && (
-        <EditModal
-          onClose={() => setIsEditOpen(false)}
-          onApplyTextEffect={handleApplyTextEffect}
-        />
-      )}
-    </div>
-  );
+    );
 }

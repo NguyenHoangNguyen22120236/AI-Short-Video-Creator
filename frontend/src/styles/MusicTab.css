@@ -1,0 +1,48 @@
+.music-tab-content {
+  background-color: #2e2e2e;
+  color: white;
+  border-radius: 12px;
+}
+
+.section-title {
+  font-weight: 600;
+}
+
+.music-card {
+  background-color: #3a3a3a;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.play-btn {
+  width: 50px;
+  height: 32px;
+  background-color: white;
+  color: black;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.progress-bar {
+  background-color: #555;
+  border-radius: 4px;
+  height: 6px;
+  position: relative;
+  cursor: pointer;
+}
+.progress-filled {
+  background-color: #1DB954;
+  height: 100%;
+  border-radius: 4px;
+}
+
+.btn-outline-light {
+  border: 1px solid #fff;
+  color: #fff;
+}
+
+.btn-outline-light:hover {
+  background-color: #fff;
+  color: black;
+}
