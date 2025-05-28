@@ -44,6 +44,9 @@ export default function PreviewVideo() {
     const [selectedEffect, setSelectedEffect] = useState('Fade');
     const [currentText, setCurrentText] = useState('');
 
+    const [audioUrl, setAudioUrl] = useState(null);
+    const audioRef = useRef(null);
+
     const [isEditOpen, setIsEditOpen] = useState(false);
 
 
@@ -65,6 +68,12 @@ export default function PreviewVideo() {
         const subtitle = data.subtitles.find(
           (sub) => currentTime >= sub.start && currentTime <= sub.end
         );
+
+        if (currentTime >= video.duration) {
+          setIsPlaying(false);
+          audioRef.current.currentTime = 0;
+          audioRef.current.pause();
+        }
 
         if (subtitle) {
           if (currentText !== subtitle.text) {
@@ -91,12 +100,18 @@ export default function PreviewVideo() {
 
 
     const handlePlay = () => {
+        
       videoRef.current?.play();
+      if (audioRef.current) {
+        audioRef.current.volume = 0.1; // Set initial volume
+        audioRef.current?.play();
+      }
       setIsPlaying(true);
     };
 
     const handlePause = () => {
       videoRef.current?.pause();
+      audioRef.current?.pause();
       setIsPlaying(false);
     };
 
@@ -105,17 +120,28 @@ export default function PreviewVideo() {
       playAgain();
     };
 
-    const handleReplaceMusic = () => {
-      // This function can be used to replace the music in the video
-      // For now, we will just log a message
-      console.log('Replace music functionality is not implemented yet.');
+    const handleApplyMusic = (music) => {
+      setAudioUrl(music.url);
+      if (audioRef.current) {
+        audioRef.current.currentTime = videoRef.current?.currentTime || 0;
+        if (isPlaying) {
+          audioRef.current.play();
+        }
+      }
+    }
+
+    const handleOpenEditModal = () => {
+      handlePause();
+      setIsEditOpen(true);
     }
 
     const playAgain = () => {
       setCurrentText('');
-      if (videoRef.current) {
+      if (videoRef.current && audioRef.current) {
         videoRef.current.currentTime = 0;
+        audioRef.current.currentTime = 0;
         videoRef.current.play();
+        audioRef.current.play();
         setIsPlaying(true);
       }
     }
@@ -129,11 +155,50 @@ export default function PreviewVideo() {
     return (
       <div className='d-flex flex-column align-items-center justify-content-center text-white'>
 
-        <div style={{ position: 'relative', width: 384, height: 512 }}>
-          <canvas ref={canvasRef} width={384} height={512} style={{ border: '1px solid #444' }}/>
+        <div className="video-container">
+          <canvas ref={canvasRef} width={384}height={512} />
 
-          <div ref={subtitleRef} className='subtitle'></div>
+          <div ref={subtitleRef} className="subtitle" />
 
+          {/* Controls Overlay */}
+          <div className='controls d-flex align-items-center justify-content-between p-2 w-100 flex-column'>
+            {/* Progress Bar */}
+            <input
+              type="range"
+              min="0"
+              max={videoRef.current?.duration || 0}
+              step="0.01"
+              value={videoRef.current?.currentTime || 0}
+              onChange={(e) => {
+                const time = parseFloat(e.target.value);
+                if (videoRef.current) {
+                  videoRef.current.currentTime = time;
+                  setCurrentTime(time);
+                }
+                if (audioRef.current) {
+                  audioRef.current.currentTime = time;
+                }
+              }}
+              className='w-100'
+            />
+            <div className='d-flex align-items-center justify-content-start gap-4 w-100 mt-2 px-1'>
+              {/* Play/Pause */}
+              <div onClick={isPlaying ? handlePause : handlePlay} className='play-button'>
+                {isPlaying ? (
+                  <FontAwesomeIcon icon={faPause} />
+                ) : (
+                  <FontAwesomeIcon icon={faPlay} />
+                )}
+              </div>
+
+              {/* Time display */}
+              <span style={{ whiteSpace: 'nowrap' }}>
+                {formatTime(videoRef.current?.currentTime || 0)} / {formatTime(videoRef.current?.duration || 0)}
+              </span>
+            </div>
+          </div>
+
+          {/* Hidden video tag */}
           <video
             ref={videoRef}
             src={data.video}
@@ -142,43 +207,19 @@ export default function PreviewVideo() {
           />
         </div>
 
-        <div style={{ marginTop: '10px' }}>
-          <span className='text-white' onClick={isPlaying ? handlePause : handlePlay}>
-            {isPlaying ? <FontAwesomeIcon icon={faPause} /> : <FontAwesomeIcon icon={faPlay} />}
-          </span>
-        </div>
-
-        <div style={{ width: 384, marginTop: 10 }}>
-          <input
-            type="range"
-            min="0"
-            max={videoRef.current?.duration || 0}
-            step="0.01"
-            value={videoRef.current?.currentTime || 0}
-            onChange={(e) => {
-              const time = parseFloat(e.target.value);
-              if (videoRef.current) {
-                videoRef.current.currentTime = time;
-                setCurrentTime(time);
-              }
-            }}
-            style={{ width: '100%' }}
-          />
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
-            <span>{formatTime(videoRef.current?.currentTime || 0)}</span>
-            <span>{formatTime(videoRef.current?.duration || 0)}</span>
-          </div>
-        </div>
-
-        <button className="edit-button p2" onClick={() => setIsEditOpen(true)}>
+        <button className="edit-button p2" onClick={handleOpenEditModal}>
           Edit
         </button>
+
+        {audioUrl && (
+          <audio ref={audioRef} src={audioUrl} style={{ display: 'none' }} preload="auto"/>
+        )}
 
         {isEditOpen && (
           <EditModal
             onClose={() => setIsEditOpen(false)}
             onApplyTextEffect={handleApplyTextEffect}
-            onApplyMusic={handleReplaceMusic}
+            onApplyMusic={handleApplyMusic}
           />
         )}
       </div>
