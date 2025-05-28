@@ -1,63 +1,61 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import '../styles/MusicTab.css';
 import MusicCard from './MusicCard';
 
 export default function MusicTab({ stockMusics, currentMusic, setCurrentMusic }) {
-    const [playingId, setPlayingId] = useState(null);
-    const audioRef = useRef(new Audio());
+    const [playingStockMusicId, setPlayingStockMusicId] = useState(null);
+    const [playingCurrentMusicId, setPlayingCurrentMusicId] = useState(null);
 
-    const handlePlayToggle = (music) => {
-        if (playingId === music.id) {
-          audioRef.current.pause();
-          setPlayingId(null);
+    const handlePlayStockMusicToggle = (music) => {
+        if (playingStockMusicId === music.id) {
+            // Pause if the same music is already playing
+            setPlayingStockMusicId(null);
         } else {
-          if (!audioRef.current.paused) {
-              audioRef.current.pause();
-          }
-
-          if (audioRef.current.src !== music.url) {
-            audioRef.current.src = music.url;
-          }
-          audioRef.current.play();
-          setPlayingId(music.id);
-          setCurrentMusic(music);
+            // Switch to new track
+            setPlayingStockMusicId(music.id);
         }
     };
 
+    const handlePlayCurrentMusicToggle = () => {
+        if (playingCurrentMusicId === currentMusic?.id) {
+            // Pause if the same music is already playing
+            setPlayingCurrentMusicId(null);
+        } else {
+            // Switch to new track
+            setPlayingCurrentMusicId(currentMusic?.id);
+        }
+    }
     return (
-        <div className="music-tab-content p-3">
-        <div className="section current-music mb-4">
-            <h5 className="section-title mb-3">Current Music info:</h5>
-            {currentMusic ? (
-            <MusicCard
-                music={currentMusic}
-                isPlaying={playingId === currentMusic.id}
-                onPlayToggle={handlePlayToggle}
-            />
-            ) : (
-            <p>No music selected</p>
-            )}
-        </div>
-
-        <div className="section stock-music mb-4">
-            <h5 className="section-title mb-3">Stock music</h5>
-            {stockMusics.map((music) => (
-            <div key={music.id} className="d-flex align-items-center justify-content-between music-card mb-3">
+        <div className="music-tab-content d-flex flex-column gap-3">
+            <div className="section current-music pb-1 px-3 d-flex flex-column gap-3">
+                <div className="section-title">Current Music info:</div>
+                {currentMusic ? (
                 <MusicCard
-                    music={music}
-                    isPlaying={playingId === music.id}
-                    onPlayToggle={handlePlayToggle}
+                    music={currentMusic}
+                    isPlaying={playingCurrentMusicId === currentMusic.id}
+                    onPlayToggle={handlePlayCurrentMusicToggle}
+                    handleReplaceMusic={null}
                 />
-                <button className="btn btn-outline-light btn-sm ms-3" onClick={() => setCurrentMusic(music)}>
-                Replace
-                </button>
+                ) : (
+                <span>No music selected</span>
+                )}
             </div>
-            ))}
-        </div>
 
-        <div className="text-end">
-            <button className="btn btn-primary">Save Change</button>
-        </div>
+            <div className="section stock-music pb-3 px-3 d-flex flex-column gap-3 p-1">
+                <div className="section-title">Stock music</div>
+                <div className='music-list d-flex flex-column gap-3'>
+                    {stockMusics.map((music) => (
+                    <div key={music.id} className="d-flex align-items-center justify-content-between music-card">
+                        <MusicCard
+                            music={music}
+                            isPlaying={playingStockMusicId === music.id}
+                            onPlayToggle={handlePlayStockMusicToggle}
+                            handleReplaceMusic={() => setCurrentMusic(music)}
+                        />
+                    </div>
+                    ))}
+                </div>
+            </div>
         </div>
     );
 }

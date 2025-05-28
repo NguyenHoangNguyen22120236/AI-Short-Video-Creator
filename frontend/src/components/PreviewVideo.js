@@ -2,6 +2,8 @@ import '../styles/PreviewVideo.css';
 import { useEffect, useState, useRef } from 'react';
 import applyEffect from '../utils/applyEffect';
 import EditModal from './EditModal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPause, faPlay } from '@fortawesome/free-solid-svg-icons';
 
 const data = {
   'video': 'https://res.cloudinary.com/dfa9owyll/video/upload/v1748136943/q4xi4jazlxvlsxirvfij.mp4', 
@@ -36,6 +38,7 @@ export default function PreviewVideo() {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const subtitleRef = useRef(null);
+    const [currentTime, setCurrentTime] = useState(0);
 
     const [isPlaying, setIsPlaying] = useState(false);
     const [selectedEffect, setSelectedEffect] = useState('Fade');
@@ -56,6 +59,7 @@ export default function PreviewVideo() {
         if (video.paused || video.ended) return;
 
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        setCurrentTime(video.currentTime);
 
         const currentTime = video.currentTime;
         const subtitle = data.subtitles.find(
@@ -101,6 +105,12 @@ export default function PreviewVideo() {
       playAgain();
     };
 
+    const handleReplaceMusic = () => {
+      // This function can be used to replace the music in the video
+      // For now, we will just log a message
+      console.log('Replace music functionality is not implemented yet.');
+    }
+
     const playAgain = () => {
       setCurrentText('');
       if (videoRef.current) {
@@ -108,6 +118,12 @@ export default function PreviewVideo() {
         videoRef.current.play();
         setIsPlaying(true);
       }
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
     }
 
     return (
@@ -127,8 +143,31 @@ export default function PreviewVideo() {
         </div>
 
         <div style={{ marginTop: '10px' }}>
-          <button onClick={handlePlay}>Play</button>
-          <button onClick={handlePause}>Pause</button>
+          <span className='text-white' onClick={isPlaying ? handlePause : handlePlay}>
+            {isPlaying ? <FontAwesomeIcon icon={faPause} /> : <FontAwesomeIcon icon={faPlay} />}
+          </span>
+        </div>
+
+        <div style={{ width: 384, marginTop: 10 }}>
+          <input
+            type="range"
+            min="0"
+            max={videoRef.current?.duration || 0}
+            step="0.01"
+            value={videoRef.current?.currentTime || 0}
+            onChange={(e) => {
+              const time = parseFloat(e.target.value);
+              if (videoRef.current) {
+                videoRef.current.currentTime = time;
+                setCurrentTime(time);
+              }
+            }}
+            style={{ width: '100%' }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
+            <span>{formatTime(videoRef.current?.currentTime || 0)}</span>
+            <span>{formatTime(videoRef.current?.duration || 0)}</span>
+          </div>
         </div>
 
         <button className="edit-button p2" onClick={() => setIsEditOpen(true)}>
@@ -139,6 +178,7 @@ export default function PreviewVideo() {
           <EditModal
             onClose={() => setIsEditOpen(false)}
             onApplyTextEffect={handleApplyTextEffect}
+            onApplyMusic={handleReplaceMusic}
           />
         )}
       </div>
