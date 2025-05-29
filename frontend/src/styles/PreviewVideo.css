@@ -34,8 +34,8 @@
 
 .video-container {
   position: relative;
-  width: 384;
-  height: 512 
+  width: 360;
+  height: 640  
 }
 
 .video-container canvas {

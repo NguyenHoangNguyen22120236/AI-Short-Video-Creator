@@ -1,0 +1,19 @@
+.rnd-selected {
+  border: 2px dashed #007bff;
+}
+
+.delete-button {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  border: none;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
