@@ -3,6 +3,8 @@ import os
 import subprocess
 import tempfile
 from third_party.cloudinary import CloudinaryService
+import srt
+import datetime
 
 
 class VideoService:
@@ -99,10 +101,10 @@ class VideoService:
 
         with tempfile.TemporaryDirectory() as temp_dir:
             for i, (image_url, audio_url, subtitle_text) in enumerate(zip(self.image_urls, self.audio_urls, self.subtitles)):
-                # Get duration using ffprobe (more accurate than pydub sometimes)
+                # Get duration using ffprobe
                 result = subprocess.run(
                     ["ffprobe", "-v", "error", "-show_entries",
-                     "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", audio_url],
+                    "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", audio_url],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT
                 )
                 duration = float(result.stdout.decode().strip())
@@ -111,7 +113,16 @@ class VideoService:
                 parts = self.__split_subtitle(subtitle_text, 5)
                 part_duration = duration / len(parts)
 
-                for part in parts:
+                # Generate SRT subtitles for this segment
+                srt_subs = []
+                seg_start = 0
+                for idx, part in enumerate(parts):
+                    start = datetime.timedelta(seconds=seg_start)
+                    end = datetime.timedelta(seconds=seg_start + part_duration)
+                    srt_subs.append(srt.Subtitle(index=idx+1, start=start, end=end, content=part))
+                    seg_start += part_duration
+
+                    # For returning all subtitles
                     subtitles.append({
                         "text": part,
                         "start": round(current_time, 2),
@@ -119,25 +130,42 @@ class VideoService:
                     })
                     current_time += part_duration
 
+                srt_path = os.path.join(temp_dir, f"segment_{i}.srt")
+                with open(srt_path, "w", encoding="utf-8") as f:
+                    f.write(srt.compose(srt_subs))
+
                 # Generate temp output path
                 output_segment = os.path.join(temp_dir, f"segment_{i}.mp4")
+                
+                print('srt_path:', srt_path)
+                print("SRT file exists:", os.path.exists(srt_path))
+                with open(srt_path, 'r', encoding='utf-8') as f:
+                    print("--- SRT content preview ---")
+                    print(f.read())
+                print(f"Running ffmpeg for segment {i} with subtitles...")
+                
+                # Convert Windows-style path to Unix-style for FFmpeg
+                srt_unix_path = srt_path.replace('\\', '/')
+                if ':' in srt_unix_path:
+                    drive_letter, rest = srt_unix_path.split(':', 1)
+                    srt_unix_path = f"{drive_letter}\\:{rest}"
 
-                # Create video from image and audio using FFmpeg
+                force_style='FontName=Arial,FontSize=15,Alignment=2,Outline=1,MarginV=40'
+                # Create video from image and audio using FFmpeg, burn subtitles
                 subprocess.run([
                     "ffmpeg", "-y", "-loop", "1",
                     "-i", image_url,
                     "-i", audio_url,
-                    "-c:v", "libx264",
+                    "-filter_complex", f"[0:v]scale=360:640,subtitles='{srt_unix_path}:force_style={force_style}'[v]",
+                    "-map", "[v]",
+                    "-map", "1:a:0",
                     "-t", str(duration),
+                    "-c:v", "libx264",
                     "-pix_fmt", "yuv420p",
-                    "-vf", "scale=360:640",
                     "-c:a", "aac",
                     "-b:a", "128k",
-                    "-map", "0:v:0",
-                    "-map", "1:a:0",
                     output_segment
                 ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
                 video_segments.append(output_segment)
 
             # Create concat file
@@ -145,18 +173,19 @@ class VideoService:
             with open(concat_file, "w") as f:
                 for path in video_segments:
                     f.write(f"file '{path}'\n")
-
+            
             # Concatenate all segments
-            subprocess.run([
+            result = subprocess.run([
                 "ffmpeg", "-y", "-f", "concat", "-safe", "0",
                 "-i", concat_file,
-                "-vf", "scale=360:640",
                 "-c:v", "libx264",
                 "-pix_fmt", "yuv420p",
                 "-c:a", "aac",
                 "-b:a", "128k",
                 output_path
             ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            
+            print(result.stderr.decode())
 
         # Get final duration
         final_duration = float(subprocess.check_output([
@@ -165,11 +194,11 @@ class VideoService:
         ]).decode().strip())
         
         # Upload video to Cloudinary
-        cloudinary_service = CloudinaryService()
-        video_url = cloudinary_service.upload_video(output_path)
+        '''cloudinary_service = CloudinaryService()
+        video_url = cloudinary_service.upload_video(output_path)'''
 
         return {
-            "video": video_url,
+            "video": output_path,
             "duration": round(final_duration, 2),
             "subtitles": subtitles
         }
