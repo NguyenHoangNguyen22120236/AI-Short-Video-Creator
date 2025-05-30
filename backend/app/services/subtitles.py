@@ -32,7 +32,6 @@ class SubtitlesService:
             subtitles = deepseek.generate_subtitles(prompt)
             
         except Exception as e:
-            logger.error(f"Error processing image: {e}")
-            raise
+            raise Exception(f"Error generating subtitles: {str(e)}")
         
         return subtitles

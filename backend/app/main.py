@@ -1,7 +1,8 @@
-'''from fastapi import FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.video import video_router
 from routes.trendy_fetcher import trendy_fetcher_router
+from routes.user import user_router
 
 app = FastAPI()
 
@@ -13,8 +14,9 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
+app.include_router(user_router, prefix="/api/user", tags=["user"])
 app.include_router(video_router, prefix="/api/video", tags=["video"])
-app.include_router(trendy_fetcher_router, prefix="/api/trendy_fetcher", tags=["trendy_fetcher"])'''
+app.include_router(trendy_fetcher_router, prefix="/api/trendy_fetcher", tags=["trendy_fetcher"])
 
 
 '''from services.video import VideoService
@@ -41,12 +43,16 @@ video_service = VideoService(
 )
 
 print(video_service.create_video_no_subtitles())'''
+'''from third_party.cloudinary import CloudinaryService
 
-from third_party.cloudinary import CloudinaryService
+cloudinary_service = CloudinaryService()
+print(cloudinary_service.upload_video('public/videos/output.mp4'))'''
+
+'''from third_party.cloudinary import CloudinaryService
 
 cloudinary_service = CloudinaryService()
 
-print(cloudinary_service.upload_audio('musics/Music happy kids.mp3'))
+print(cloudinary_service.upload_audio('musics/Music happy kids.mp3'))'''
 # result:
 # https://res.cloudinary.com/dfa9owyll/video/upload/v1748337941/rt1u8omiiqhbsbrmerlz.mp3 -----> Background music soft corporate
 # https://res.cloudinary.com/dfa9owyll/video/upload/v1748338050/oh2gnk6er7wwoin5excj.mp3 -----> Cinematic ambient music beautiful sunset mood

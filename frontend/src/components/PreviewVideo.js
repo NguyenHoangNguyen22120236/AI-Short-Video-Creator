@@ -6,9 +6,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 
 const data = {
-  video:
-    "https://res.cloudinary.com/dfa9owyll/video/upload/v1748136943/q4xi4jazlxvlsxirvfij.mp4",
-  duration: "44.31",
+  video: "https://res.cloudinary.com/dfa9owyll/video/upload/v1748574987/ythdxv2rjinjep4cssj5.mp4",
+  duration: 44.36,
   subtitles: [
     { text: "Mat trời ló dạng qua làn sương mỏng,", start: 0, end: 2.4 },
     { text: "một bà cụ áo dài chậm rãi đẩy", start: 2.4, end: 4.8 },
@@ -17,8 +16,8 @@ const data = {
     { text: "mái tranh, mùi khói bếp lan tỏa.", start: 9.6, end: 12.0 },
     { text: "Phố cờ đỏ sao vàng rực rỡ,", start: 12.0, end: 14.2 },
     { text: "tiếng rao hàng rong hòa cùng nhịp", start: 14.2, end: 16.4 },
-    { text: "xích lô. Bàn tay thoăn thoắt gói", start: 16.4, end: 18.59 },
-    { text: "bánh cuốn, giọt mắm cay nồng thấm", start: 18.59, end: 20.79 },
+    { text: "xích lô. Bàn tay thoăn thoắt gói", start: 16.4, end: 18.6 },
+    { text: "bánh cuốn, giọt mắm cay nồng thấm", start: 18.6, end: 20.79 },
     { text: "vào vị giác người lữ khách.", start: 20.79, end: 22.99 },
     { text: "Chiều buông xuống bến sông Hồng, mái", start: 22.99, end: 25.27 },
     { text: "chèo khua nước lấp lánh ánh vàng.", start: 25.27, end: 27.54 },
@@ -30,10 +29,10 @@ const data = {
       start: 34.37,
       end: 36.36,
     },
-    { text: "đèn hoa đăng. Bàn tay trẻ lau vội", start: 36.36, end: 38.35 },
-    { text: "mồ hôi, gõ phím máy tính bên", start: 38.35, end: 40.33 },
+    { text: "đèn hoa đăng. Bàn tay trẻ lau vội", start: 36.36, end: 38.34 },
+    { text: "mồ hôi, gõ phím máy tính bên", start: 38.34, end: 40.33 },
     { text: "tách cà phê đen nóng hổi -", start: 40.33, end: 42.32 },
-    { text: "nhịp sống mới vẫn giữ hồn xưa.", start: 42.32, end: 44.31 },
+    { text: "nhịp sống mới vẫn giữ hồn xưa.", start: 42.32, end: 44.3 },
   ],
 };
 
@@ -165,7 +164,7 @@ export default function PreviewVideo() {
   };
 
   const handleApplyMusic = (music) => {
-    setCurrentMusic(music);
+    setCurrentMusic({ ...music });
   };
 
   const handleApplyStickers = (stickers) => {

@@ -32,7 +32,7 @@ export default function applyEffect(el, effect, duration, currentText, video) {
       effectTimeline.to(el, { opacity: 0, scale: 0.5, duration: 0.5 }, duration - 0.5);
       break;
 
-    case 'Typewriter':
+    /*case 'Typewriter':
       effectTimeline = gsap.timeline();
       gsap.set(el, { opacity: 1 });
       el.innerText = '';
@@ -43,7 +43,7 @@ export default function applyEffect(el, effect, duration, currentText, video) {
         }, null, index * 0.04); // 40ms per char
       });
       effectTimeline.to(el, { opacity: 0, duration: 0.5 }, duration);
-      break;
+      break;*/
   }
 
   // Pause/resume timeline with video

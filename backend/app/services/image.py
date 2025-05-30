@@ -5,7 +5,7 @@ class ImageService:
     def __init__(delf):
         pass
     
-    async def generate_image(self, subtitles):
+    async def generate_image(self, subtitles, email):
         try:
             runware_ai = RunwareAI()
             deepseek = DeepSeek()
@@ -25,10 +25,9 @@ class ImageService:
                 if response is None:
                     return None
                         
-                file = f'public/images/output{i}.jpg'
+                file = f'public/images/{email}-output{i}.jpg'
                 with open(file, "wb") as out:
                     out.write(response.content) 
-                    print("Audio content written to file f'output{i}.jpg'")
                     
                 image_urls.append(file)
                 

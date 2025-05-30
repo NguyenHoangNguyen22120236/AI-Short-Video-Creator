@@ -1,15 +1,16 @@
 from third_party.cloudinary import CloudinaryService
-from moviepy.editor import ImageClip, AudioFileClip, concatenate_videoclips, CompositeVideoClip, TextClip
-from moviepy.config import change_settings
+import os
+import subprocess
+import tempfile
+from third_party.cloudinary import CloudinaryService
 
-IMAGEMAGIC_PATH = r"C:\Program Files\ImageMagick-7.1.1-Q16-HDRI\magick.exe"
-change_settings({"IMAGEMAGICK_BINARY": IMAGEMAGIC_PATH})
 
 class VideoService:
-    def __init__(self, image_urls, audio_urls, subtitles):
+    def __init__(self, image_urls, audio_urls, subtitles, email):
         self.image_urls = image_urls
         self.audio_urls = audio_urls
         self.subtitles = subtitles
+        self.email = email
         
     async def preview_video(self):
         cloudinary_service = CloudinaryService()
@@ -39,7 +40,7 @@ class VideoService:
         return result
     
         
-    async def create_video(self):
+    '''async def create_video(self):
         video_clips = []
         output_path="output.mp4"
         
@@ -73,7 +74,7 @@ class VideoService:
 
         sticker_clip: ImageClip = ImageClip('d').set_duration(duration)
         sticker_clip = sticker_clip.set_position()
-        return output_path
+        return output_path'''
             
             
     def __split_subtitle(self, subtitle, n):
@@ -90,39 +91,85 @@ class VideoService:
 
         return result
     
-    def create_video_no_subtitles(self):
-        video_clips = []
+    async def create_video(self):
+        video_segments = []
         subtitles = []
-        output_path = "output.mp4"
         current_time = 0
+        output_path = f'public/videos/{self.email}-output.mp4'
 
-        for i, (image_url, audio_url, subtitle_text) in enumerate(zip(self.image_urls, self.audio_urls, self.subtitles)):
-            audio_clip = AudioFileClip(audio_url)
-            duration = audio_clip.duration
+        with tempfile.TemporaryDirectory() as temp_dir:
+            for i, (image_url, audio_url, subtitle_text) in enumerate(zip(self.image_urls, self.audio_urls, self.subtitles)):
+                # Get duration using ffprobe (more accurate than pydub sometimes)
+                result = subprocess.run(
+                    ["ffprobe", "-v", "error", "-show_entries",
+                     "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", audio_url],
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+                )
+                duration = float(result.stdout.decode().strip())
 
-            # Split subtitle into 5 parts
-            parts = self.__split_subtitle(subtitle_text, 5)
+                # Split subtitle into parts
+                parts = self.__split_subtitle(subtitle_text, 5)
+                part_duration = duration / len(parts)
 
-            part_duration = duration / len(parts)
+                for part in parts:
+                    subtitles.append({
+                        "text": part,
+                        "start": round(current_time, 2),
+                        "end": round(current_time + part_duration, 2)
+                    })
+                    current_time += part_duration
 
-            for part in parts:
-                subtitle = {
-                    "text": part,
-                    "start": round(current_time, 2),
-                    "end": round(current_time + part_duration, 2)
-                }
-                subtitles.append(subtitle)
-                current_time += part_duration
+                # Generate temp output path
+                output_segment = os.path.join(temp_dir, f"segment_{i}.mp4")
 
-            img_clip = ImageClip(image_url).set_duration(duration)
-            img_clip = img_clip.set_audio(audio_clip)
-            video_clips.append(img_clip)
+                # Create video from image and audio using FFmpeg
+                subprocess.run([
+                    "ffmpeg", "-y", "-loop", "1",
+                    "-i", image_url,
+                    "-i", audio_url,
+                    "-c:v", "libx264",
+                    "-t", str(duration),
+                    "-pix_fmt", "yuv420p",
+                    "-vf", "scale=360:640",
+                    "-c:a", "aac",
+                    "-b:a", "128k",
+                    "-map", "0:v:0",
+                    "-map", "1:a:0",
+                    output_segment
+                ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        final_video = concatenate_videoclips(video_clips, method="compose")
-        final_video.write_videofile(output_path, fps=24, threads=10, preset='ultrafast', bitrate='1000k')
+                video_segments.append(output_segment)
+
+            # Create concat file
+            concat_file = os.path.join(temp_dir, "concat.txt")
+            with open(concat_file, "w") as f:
+                for path in video_segments:
+                    f.write(f"file '{path}'\n")
+
+            # Concatenate all segments
+            subprocess.run([
+                "ffmpeg", "-y", "-f", "concat", "-safe", "0",
+                "-i", concat_file,
+                "-vf", "scale=360:640",
+                "-c:v", "libx264",
+                "-pix_fmt", "yuv420p",
+                "-c:a", "aac",
+                "-b:a", "128k",
+                output_path
+            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        # Get final duration
+        final_duration = float(subprocess.check_output([
+            "ffprobe", "-v", "error", "-show_entries", "format=duration",
+            "-of", "default=noprint_wrappers=1:nokey=1", output_path
+        ]).decode().strip())
+        
+        # Upload video to Cloudinary
+        cloudinary_service = CloudinaryService()
+        video_url = cloudinary_service.upload_video(output_path)
 
         return {
-            "video": output_path,
-            "duration": round(final_video.duration, 2),
+            "video": video_url,
+            "duration": round(final_duration, 2),
             "subtitles": subtitles
         }

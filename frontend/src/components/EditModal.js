@@ -47,15 +47,13 @@ export default function EditModal({
 }) {
   const [activeTab, setActiveTab] = useState("Text Effect");
   const [selectedEffect, setSelectedEffect] = useState(currentData.selectedEffect);
-  const [currentMusic, setCurrentMusic] = useState(currentData.audioUrl);
+  const [currentMusic, setCurrentMusic] = useState(currentData.currentMusic);
   const [selectedStickers, setSelectedStickers] = useState(currentData.selectedStickers);
 
   const handleSave = () => {
-    //if (activeTab === "Text Effect") {
     onApplyTextEffect(selectedEffect);
     onApplyMusic(currentMusic);
     onApplyStickers(selectedStickers);
-    //}
     onClose(); // close modal
   };
 
