@@ -20,3 +20,10 @@ class CloudinaryService:
         upload_result:dict = cloudinary.uploader.upload(file_path, resource_type="video")
         return upload_result.get("secure_url")
     
+    def upload_audio(self, file_path):
+        upload_result:dict = cloudinary.uploader.upload(file_path, resource_type="raw")
+        return upload_result.get("secure_url")
+    
+    def upload_image(self, file_path):
+        upload_result:dict = cloudinary.uploader.upload(file_path, resource_type="image")
+        return upload_result.get("secure_url")

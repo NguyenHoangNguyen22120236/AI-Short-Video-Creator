@@ -1,6 +1,7 @@
 import os
 import subprocess
 import tempfile
+import shutil
 from third_party.cloudinary import CloudinaryService
 from utils.draw_text import build_drawtext_filter
 
@@ -104,7 +105,57 @@ class VideoService:
         ], check=True)
         
         
-    async def create_video(self):
+    def __mix_music_with_video(self, video_path, music_path, output_path):
+        # Mix audio from video and music together, keep video stream unchanged
+        cmd = [
+            "ffmpeg", "-y",
+            "-i", video_path,
+            "-i", music_path,
+            "-filter_complex",
+            "[1:a]volume=0.2[a1];[0:a][a1]amix=inputs=2:duration=first:dropout_transition=2[a]",
+            "-map", "0:v",
+            "-map", "[a]",
+            "-c:v", "copy",
+            "-c:a", "aac",
+            "-b:a", "192k",
+            output_path
+        ]
+        subprocess.run(cmd, check=True)
+        
+    
+    def __add_stickers_to_video(self, video_path, stickers, output_path):
+        inputs = ["-i", video_path]
+        filter_complex = []
+        overlay_stream = "[0:v]"
+
+        # Add each sticker as input and build overlay chain
+        for idx, sticker in enumerate(stickers):
+            inputs.extend(["-i", sticker["path"]])
+            scale = f"scale={sticker['width']}:{sticker['height']}"
+            overlay_tag = f"[v{idx + 1}]"
+            filter_complex.append(
+                f"[{idx + 1}:v]{scale}{overlay_tag}"
+            )
+            overlay_result = f"[tmp{idx + 1}]" if idx < len(stickers) - 1 else "[vout]"
+            filter_complex.append(
+                f"{overlay_stream}{overlay_tag}overlay={sticker['x']}:{sticker['y']}{overlay_result}"
+            )
+            overlay_stream = overlay_result
+
+        # Compose full FFmpeg command
+        cmd = [
+            "ffmpeg", "-y", *inputs,
+            "-filter_complex", ";".join(filter_complex),
+            "-map", "[vout]",
+            "-map", "0:a?",  # optional audio from main video
+            "-c:v", "libx264", "-crf", "23", "-preset", "veryfast",
+            "-c:a", "aac", "-b:a", "192k",
+            output_path
+        ]
+        subprocess.run(cmd, check=True)
+        
+        
+    async def create_video(self, text_effect=None, music=None, stickers=None):
         video_segments = []
         subtitles = []
         current_time = 0
@@ -122,15 +173,28 @@ class VideoService:
                 segment_path, duration = self.__create_video_segment(
                     image_url, audio_url, segment_subs,
                     font_path="/path/to/font.ttf",
-                    text_effect="wave",
+                    text_effect=text_effect,
                     temp_dir=temp_dir,
                     segment_index=i
                 )
                 video_segments.append(segment_path)
                 current_time += duration
 
-            # Concatenate all segments into final video
-            self.__concatenate_segments(video_segments, temp_dir, output_path)
+            #Concatenate segments into full video WITHOUT music
+            concatenated_video_path = os.path.join(temp_dir, "concatenated.mp4")
+            self.__concatenate_segments(video_segments, temp_dir, concatenated_video_path)
+            
+            if music:
+                self.__mix_music_with_video(concatenated_video_path, music, output_path)
+            else:
+                #Rename/move concatenated video to output_path if no music
+                shutil.move(concatenated_video_path, output_path)
+                
+            # If stickers are provided, add them to the final video
+            if stickers:
+                temp_sticker_path = os.path.join(temp_dir, "with_stickers.mp4")
+                self.__add_stickers_to_video(output_path, stickers, temp_sticker_path)
+                shutil.move(temp_sticker_path, output_path)
 
         # Get final video duration
         final_duration = float(subprocess.check_output([

@@ -48,7 +48,13 @@ class VideoController:
                 ],
                 email=email
             )
-            result = await video_service.create_video()
+            result = await video_service.create_video(
+                music='https://res.cloudinary.com/dfa9owyll/raw/upload/v1748671858/d7emufgt2vj3qujxpahl.mp3',
+                stickers= [
+                    {"path": "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673384/qf8ylj8gpharbdurvcc8.png", "x": 100, "y": 50, "width": 64, "height": 64},
+                    {"path": "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673385/jldqihwdmre62kyc1ook.png", "x": 300, "y": 150, "width": 48, "height": 48}
+                ]
+                )
             
             #delete files after video creation
             '''for i in range(len(image_urls)):
