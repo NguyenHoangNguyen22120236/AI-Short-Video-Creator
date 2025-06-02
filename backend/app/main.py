@@ -91,3 +91,24 @@ for i in range(2):
 
 # youx27re-beautiful_short-1-59sec-197075
 # https://res.cloudinary.com/dfa9owyll/raw/upload/v1748671864/esxogdylyk4qhhm3lbc5.mp3
+
+
+'''from models.user import User
+from utils.database import get_db
+import asyncio
+from utils.security import hash_password
+
+async def create_new_user():
+    async for db in get_db():
+        new_user = await User.create(
+            db,
+            username="john cena",
+            email="123@example.com",
+            hashed_password=hash_password("password123"),
+            auth_provider="local"
+        )
+        print(new_user)
+
+if __name__ == "__main__":
+    pass
+    #asyncio.run(create_new_user())'''
