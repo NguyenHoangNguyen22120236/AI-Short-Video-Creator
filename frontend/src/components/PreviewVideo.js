@@ -14,7 +14,6 @@ export default function PreviewVideo() {
     id: 1,
     video:
       "https://res.cloudinary.com/dfa9owyll/video/upload/v1748754976/engtqh8xj9vi4qctfpsu.mp4",
-    duration: 44.36,
     text_effect: null,
     music:{
       id: 1,

@@ -204,10 +204,13 @@ class VideoService:
         # Upload video to Cloudinary
         cloudinary_service = CloudinaryService()
         video_url = cloudinary_service.upload_video(output_path)
+        
+        # delete output video file after upload
+        if os.path.exists(output_path):
+            os.remove(output_path)
 
         return {
             "video": video_url,
-            "duration": round(final_duration, 2),
             "music": music,
             "text_effect": text_effect,
             "stickers": stickers,

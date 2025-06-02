@@ -6,12 +6,14 @@ from services.video import VideoService
 from third_party.cloudinary import CloudinaryService
 from fastapi import HTTPException
 import os
+from sqlalchemy.exc import NoResultFound
+from sqlalchemy import select, update
+from sqlalchemy.ext.asyncio import AsyncSession
+from models.video import Video
 
 mock_video = {
-    "id": 1,
     "topic": "Video 1",
-    "created_at": "2025-5-1",
-    "video_url": "https://res.cloudinary.com/dfa9owyll/video/upload/v1748754976/engtqh8xj9vi4qctfpsu.mp4",
+    "video": "https://res.cloudinary.com/dfa9owyll/video/upload/v1748754976/engtqh8xj9vi4qctfpsu.mp4",
     "image_urls": [
             f'public/images/123@example.com-output0.jpg',
             f'public/images/123@example.com-output1.jpg',
@@ -30,6 +32,7 @@ mock_video = {
             f'Chiều buông xuống bến sông Hồng, mái chèo khua nước lấp lánh ánh vàng. Câu hò "ơi à ơi..." vọng từ con thuyền nan, đôi mắt người chài lưới in bóng hoàng hôn.',
             f'Đêm thành phố thức giấc trong muôn ngàn đèn hoa đăng. Bàn tay trẻ lau vội mồ hôi, gõ phím máy tính bên tách cà phê đen nóng hổi - nhịp sống mới vẫn giữ hồn xưa.'
         ],
+    "text_effect": None,
     "music": {
         'title':'Funny tango dramatic music',
         'url':'https://res.cloudinary.com/dfa9owyll/raw/upload/v1748671858/d7emufgt2vj3qujxpahl.mp3'
@@ -41,11 +44,8 @@ mock_video = {
 }
 
 class VideoController:
-    def __init__(self):
-        pass
-    
-    
-    async def create_video(self, topic: str, email: str, language_code: str = "en-US"):
+    @staticmethod
+    async def create_video(db: AsyncSession, topic: str, email: str, language_code: str = "en-US"):
         if not topic:
             raise HTTPException(status_code=400, detail="Topic is required")
         
@@ -114,30 +114,19 @@ class VideoController:
         return result, 200
     
     
-    async def update_video(self, email: str, id: int, text_effect: str=None, music: str=None, stickers: str=None):
-        # This method would update an existing video with new parameters
-        # For now, we will just return a mock response
-        if id != mock_video["id"]:
+    @staticmethod
+    async def update_video(db: AsyncSession, email: str, id: int, text_effect: str=None, music: str=None, stickers: str=None):
+        video = await Video.get_by_id(db, id)
+        
+        if not video:
             raise HTTPException(status_code=404, detail="Video not found")
         
-        try:
-            # delete old video from Cloudinary
-            #cloudinary_service = CloudinaryService()
-            #cloudinary_service.delete_file(mock_video["video_url"])
-            
-            updated_video = mock_video.copy()
-            if text_effect:
-                updated_video["text_effect"] = text_effect
-            if music:
-                updated_video["music"] = music
-            if stickers:
-                updated_video["stickers"] = stickers
-                
+        try:    
             #update video
             video_service = VideoService(
-                image_urls=updated_video["image_urls"],
-                audio_urls=updated_video["audio_urls"],
-                subtitles=updated_video["subtitles"],
+                image_urls=video.image_urls,
+                audio_urls=video.audio_urls,
+                subtitles=video.subtitles,
                 email= email
             )
             
@@ -147,7 +136,20 @@ class VideoController:
                 stickers=stickers
             )
             
-            result["id"] = id
+            # delete old video from Cloudinary
+            cloudinary_service = CloudinaryService()
+            cloudinary_service.delete_file(video.video)
+            
+            video.video = result['video']
+            if text_effect is not None:
+                video.text_effect = text_effect
+            if music is not None:
+                video.music = music
+            if stickers is not None:
+                video.stickers = stickers
+            
+            await db.commit()
+            await db.refresh(video)
             
         except Exception as e:
             print(f"Error updating video: {e}")

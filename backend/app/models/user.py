@@ -18,6 +18,7 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     
+    
     @classmethod
     async def create(cls, db: AsyncSession, **kwargs):
         """Create and persist a new user asynchronously."""
@@ -32,14 +33,16 @@ class User(Base):
             print(f"IntegrityError: {e.orig}")
             return None
 
-    @classmethod
-    async def get_by_username(cls, db: AsyncSession, username: str):
-        """Fetch a user by their username asynchronously."""
-        result = await db.execute(select(cls).filter_by(username=username))
-        return result.scalars().first()
 
     @classmethod
-    async def update_by_id(cls, db: AsyncSession, user_id: int, **kwargs):
+    async def get_by_email(cls, db: AsyncSession, email: str):
+        """Fetch a user by their email asynchronously."""
+        result = await db.execute(select(cls).filter_by(email=email))
+        return result.scalars().first()
+
+
+    @classmethod
+    async def update(cls, db: AsyncSession, user_id: int, **kwargs):
         """Update a user asynchronously."""
         result = await db.execute(select(cls).filter_by(id=user_id))
         user = result.scalars().first()
@@ -56,8 +59,9 @@ class User(Base):
             print(f"IntegrityError on update: {e.orig}")
             return None
 
+
     @classmethod
-    async def delete_by_id(cls, db: AsyncSession, user_id: int):
+    async def delete(cls, db: AsyncSession, user_id: int):
         """Delete a user asynchronously by ID."""
         result = await db.execute(select(cls).filter_by(id=user_id))
         user = result.scalars().first()
