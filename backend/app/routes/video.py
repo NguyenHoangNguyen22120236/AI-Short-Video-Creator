@@ -2,17 +2,49 @@ from fastapi import APIRouter, Query, Depends
 from fastapi.responses import JSONResponse
 from controllers.video import VideoController
 from utils.auth import verify_jwt_token
+from pydantic import BaseModel
 
 video_router = APIRouter()
 video_controller = VideoController()
 
+
+class VideoCreateRequest(BaseModel):
+    topic: str
+    language: str
+    
+    
+class VideoUpdateRequest(BaseModel):
+    id: int
+    text_effect: str = None
+    music: dict = None
+    stickers: list[dict] = None
+    
+
 @video_router.post("/create_video")
 async def create_video_no_subtitles(
-    user_data: dict = Depends(verify_jwt_token),
-    topic: str = Query(..., description="Topic of the video"),
-    language_code: str = Query("en-US", description="Language code")
+    payload: VideoCreateRequest,
+    user_data: dict = Depends(verify_jwt_token)
 ):
-    result, status_code = await video_controller.create_video(topic=topic,email=user_data.get("sub"), language_code=language_code)
+    result, status_code = await video_controller.create_video(
+        topic=payload.topic,
+        email=user_data.get("sub"),
+        language_code=payload.language
+    )
+    return JSONResponse(content=result, status_code=status_code)
+
+
+@video_router.post("/update_video")
+async def update_video(
+    payload: VideoUpdateRequest,
+    user_data: dict = Depends(verify_jwt_token)
+):
+    result, status_code = await video_controller.update_video(
+        email=user_data.get("sub"),
+        id=payload.id,
+        text_effect=payload.text_effect,
+        music=payload.music,
+        stickers=payload.stickers
+    )
     return JSONResponse(content=result, status_code=status_code)
 
 

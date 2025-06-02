@@ -130,7 +130,7 @@ class VideoService:
 
         # Add each sticker as input and build overlay chain
         for idx, sticker in enumerate(stickers):
-            inputs.extend(["-i", sticker["path"]])
+            inputs.extend(["-i", sticker["url"]])
             scale = f"scale={sticker['width']}:{sticker['height']}"
             overlay_tag = f"[v{idx + 1}]"
             filter_complex.append(
@@ -157,7 +157,6 @@ class VideoService:
         
     async def create_video(self, text_effect=None, music=None, stickers=None):
         video_segments = []
-        subtitles = []
         current_time = 0
         output_path = f'public/videos/{self.email}-output.mp4'
 
@@ -167,7 +166,6 @@ class VideoService:
 
                 # Generate segment subtitles with timing relative to total video
                 segment_subs, part_duration = self.__generate_segment_subtitles(parts, current_time, self.__get_audio_duration(audio_url))
-                subtitles.extend(segment_subs)
 
                 # Create segment video
                 segment_path, duration = self.__create_video_segment(
@@ -185,7 +183,7 @@ class VideoService:
             self.__concatenate_segments(video_segments, temp_dir, concatenated_video_path)
             
             if music:
-                self.__mix_music_with_video(concatenated_video_path, music, output_path)
+                self.__mix_music_with_video(concatenated_video_path, music['url'], output_path)
             else:
                 #Rename/move concatenated video to output_path if no music
                 shutil.move(concatenated_video_path, output_path)
@@ -204,11 +202,13 @@ class VideoService:
 
         
         # Upload video to Cloudinary
-        '''cloudinary_service = CloudinaryService()
-        video_url = cloudinary_service.upload_video(output_path)'''
+        cloudinary_service = CloudinaryService()
+        video_url = cloudinary_service.upload_video(output_path)
 
         return {
-            "video": output_path,
+            "video": video_url,
             "duration": round(final_duration, 2),
-            "subtitles": subtitles
+            "music": music,
+            "text_effect": text_effect,
+            "stickers": stickers,
         }

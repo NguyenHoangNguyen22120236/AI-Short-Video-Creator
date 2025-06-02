@@ -1,5 +1,6 @@
 import '../styles/CreateVideo.css';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Modal from 'react-bootstrap/Modal';
 
 
@@ -9,6 +10,9 @@ export default function CreateVideo() {
     const [showModal, setShowModal] = useState(false);
     const [trendyTopics, setTrendyTopics] = useState([]);
     const [location, setLocation] = useState('US');
+    const [isGenerating, setIsGenerating] = useState(false);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchTrendyTopics = async () => {
@@ -32,6 +36,48 @@ export default function CreateVideo() {
         setShowModal(false);
     };
 
+    const handleGenerateVideo = async () => {
+        if (!topic.trim()) {
+            alert("Please enter or select a topic first.");
+            return;
+        }
+
+        setIsGenerating(true);
+
+        try {
+            //const token = localStorage.getItem('access_token');
+
+            const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJleHAiOjE3NDg5Njk5NDJ9.dkMTyXuIaalhbHgfQ8tL0YFQOSlXY8nPbM5jPCWVRe4"; // Replace with your actual token logic
+
+            const response = await fetch('http://127.0.0.1:8000/api/video/create_video', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`, 
+                },
+                body: JSON.stringify({
+                    topic,
+                    language,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data) {
+                // Navigate to preview page and pass the video URL
+                navigate('/preview-video', { state: { data: data } });
+                //console.log('Video generated successfully:', data);
+            } else {
+                alert('Video generation failed.');
+            }
+        } catch (error) {
+            console.error('Error generating video:', error);
+            alert('An error occurred while generating the video.');
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     return (
         <div className="container px-lg-5 py-lg-3 px-md-3 py-md-2 px-sm-1 py-sm-1 text-white">
             <div className="input-box mx-lg-5 mt-lg-5 mx-md-3 mt-md-3 mx-sm-3 mt-sm-1 mt-3 mx-1">
@@ -45,7 +91,9 @@ export default function CreateVideo() {
                     <span className="char-limit">{topic.length} / 100</span>
                     <div className='d-flex gap-5 align-items-center'>
                         <button className="btn" onClick={() => setShowModal(true)}>Suggest Trendy Topics</button>
-                        <button className="btn btn-primary">Generate Video</button>
+                        <button className="btn btn-primary" onClick={handleGenerateVideo} disabled={isGenerating}>
+                            {isGenerating ? 'Generating...' : 'Generate Video'}
+                        </button>
                     </div>
                 </div>
             </div>

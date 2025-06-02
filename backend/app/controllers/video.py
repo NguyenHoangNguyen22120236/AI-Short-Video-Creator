@@ -3,8 +3,42 @@ from services.subtitles import SubtitlesService
 from services.audio import AudioService
 from services.image import ImageService
 from services.video import VideoService
+from third_party.cloudinary import CloudinaryService
 from fastapi import HTTPException
 import os
+
+mock_video = {
+    "id": 1,
+    "topic": "Video 1",
+    "created_at": "2025-5-1",
+    "video_url": "https://res.cloudinary.com/dfa9owyll/video/upload/v1748754976/engtqh8xj9vi4qctfpsu.mp4",
+    "image_urls": [
+            f'public/images/123@example.com-output0.jpg',
+            f'public/images/123@example.com-output1.jpg',
+            f'public/images/123@example.com-output2.jpg',
+            f'public/images/123@example.com-output3.jpg'
+        ],
+    "audio_urls": [
+            f'public/audios/123@example.com-output0.mp3',
+            f'public/audios/123@example.com-output1.mp3',
+            f'public/audios/123@example.com-output2.mp3',
+            f'public/audios/123@example.com-output3.mp3'
+        ],
+    "subtitles": [
+            f'Mat trời ló dạng qua làn sương mỏng, một bà cụ áo dài chậm rãi đẩy xe qua cánh đồng lúa xanh mướt. Tiếng cười trẻ con vang lên từ ngôi nhà mái tranh, mùi khói bếp lan tỏa.',
+            f'Phố cờ đỏ sao vàng rực rỡ, tiếng rao hàng rong hòa cùng nhịp xích lô. Bàn tay thoăn thoắt gói bánh cuốn, giọt mắm cay nồng thấm vào vị giác người lữ khách.',
+            f'Chiều buông xuống bến sông Hồng, mái chèo khua nước lấp lánh ánh vàng. Câu hò "ơi à ơi..." vọng từ con thuyền nan, đôi mắt người chài lưới in bóng hoàng hôn.',
+            f'Đêm thành phố thức giấc trong muôn ngàn đèn hoa đăng. Bàn tay trẻ lau vội mồ hôi, gõ phím máy tính bên tách cà phê đen nóng hổi - nhịp sống mới vẫn giữ hồn xưa.'
+        ],
+    "music": {
+        'title':'Funny tango dramatic music',
+        'url':'https://res.cloudinary.com/dfa9owyll/raw/upload/v1748671858/d7emufgt2vj3qujxpahl.mp3'
+    },
+    "stickers": [
+        {"path": "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673384/qf8ylj8gpharbdurvcc8.png", "x": 100, "y": 50, "width": 64, "height": 64},
+        {"path": "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673385/jldqihwdmre62kyc1ook.png", "x": 300, "y": 150, "width": 48, "height": 48}
+    ]
+}
 
 class VideoController:
     def __init__(self):
@@ -49,12 +83,20 @@ class VideoController:
                 email=email
             )
             result = await video_service.create_video(
-                music='https://res.cloudinary.com/dfa9owyll/raw/upload/v1748671858/d7emufgt2vj3qujxpahl.mp3',
+                music={
+                    'id': 1,
+                    'title':'Funny tango dramatic music',
+                    'url':'https://res.cloudinary.com/dfa9owyll/raw/upload/v1748671858/d7emufgt2vj3qujxpahl.mp3'
+                },
                 stickers= [
-                    {"path": "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673384/qf8ylj8gpharbdurvcc8.png", "x": 100, "y": 50, "width": 64, "height": 64},
-                    {"path": "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673385/jldqihwdmre62kyc1ook.png", "x": 300, "y": 150, "width": 48, "height": 48}
+                    {"url": "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673384/qf8ylj8gpharbdurvcc8.png", "x": 100, "y": 50, "width": 64, "height": 64},
+                    {"url": "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673385/jldqihwdmre62kyc1ook.png", "x": 300, "y": 150, "width": 48, "height": 48}
                 ]
                 )
+            
+            # Upload video to Cloudinary
+            '''cloudinary_service = CloudinaryService()
+            video_url = cloudinary_service.upload_video(output_path)'''
             
             #delete files after video creation
             '''for i in range(len(image_urls)):
@@ -68,5 +110,47 @@ class VideoController:
         except Exception as e:
             print(f"Error creating video: {e}")
             raise HTTPException(status_code=500, detail="Failed to generate video")
+        
+        return result, 200
+    
+    
+    async def update_video(self, email: str, id: int, text_effect: str=None, music: str=None, stickers: str=None):
+        # This method would update an existing video with new parameters
+        # For now, we will just return a mock response
+        if id != mock_video["id"]:
+            raise HTTPException(status_code=404, detail="Video not found")
+        
+        try:
+            # delete old video from Cloudinary
+            #cloudinary_service = CloudinaryService()
+            #cloudinary_service.delete_file(mock_video["video_url"])
+            
+            updated_video = mock_video.copy()
+            if text_effect:
+                updated_video["text_effect"] = text_effect
+            if music:
+                updated_video["music"] = music
+            if stickers:
+                updated_video["stickers"] = stickers
+                
+            #update video
+            video_service = VideoService(
+                image_urls=updated_video["image_urls"],
+                audio_urls=updated_video["audio_urls"],
+                subtitles=updated_video["subtitles"],
+                email= email
+            )
+            
+            result = await video_service.create_video(
+                text_effect=text_effect,
+                music=music,
+                stickers=stickers
+            )
+            
+            result["id"] = id
+            
+        except Exception as e:
+            print(f"Error updating video: {e}")
+            raise HTTPException(status_code=500, detail="Failed to update video")
         
         return result, 200

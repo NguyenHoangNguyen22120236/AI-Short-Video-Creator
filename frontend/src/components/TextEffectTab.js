@@ -6,9 +6,10 @@ export default function TextEffectTab({textEffects, selectedEffect, setSelectedE
             <label htmlFor="textEffect">Text Effect</label>
             <select
             id="textEffect"
-            value={selectedEffect}
+            value={selectedEffect ?? ""}
             onChange={(e) => setSelectedEffect(e.target.value)}
             >
+            <option value="">None</option>
             {textEffects.map((effect) => (
                 <option key={effect} value={effect}>
                 {effect}

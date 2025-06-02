@@ -80,3 +80,8 @@
     font-size: 1.2rem;
     font-weight: bold;
 }
+
+.modal-body {
+  max-height: 80vh;
+  overflow-y: auto 
+}

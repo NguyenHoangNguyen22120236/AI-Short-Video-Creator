@@ -2,16 +2,15 @@ import { useState} from "react";
 import { Rnd } from "react-rnd";
 import "../styles/StickerTab.css";
 
-const STICKERS = [];
 
 export default function StickerTab({stockStickers, selectedStickers, setSelectedStickers}) {
   //const [stickers, setStickers] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
 
-  const handleAddSticker = (src) => {
+  const handleAddSticker = (sticker) => {
     const newSticker = {
-      id: Date.now(),
-      src,
+      id: Date.now(), // unique id based on timestamp
+      url: sticker.url,
       x: 50,
       y: 50,
       width: 70,
@@ -26,7 +25,6 @@ export default function StickerTab({stockStickers, selectedStickers, setSelected
   };
 
   const updateSticker = (id, newProps) => {
-    console.log("Updating:", id, newProps);
     setSelectedStickers((prev) =>
       prev.map((s) => (s.id === id ? { ...s, ...newProps } : s))
     );
@@ -38,13 +36,13 @@ export default function StickerTab({stockStickers, selectedStickers, setSelected
       <div style={{ width: 150, paddingRight: 16 }}>
         <h3>Stickers</h3>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-          {stockStickers.map((src, index) => (
+          {stockStickers.map((sticker) => (
             <img
-              key={index}
-              src={src}
+              key={sticker.id}
+              src={sticker.url}
               alt="sticker"
               style={{ width: 50, height: 50, cursor: "pointer" }}
-              onClick={() => handleAddSticker(src)}
+              onClick={() => handleAddSticker(sticker)}
             />
           ))}
         </div>
@@ -54,8 +52,8 @@ export default function StickerTab({stockStickers, selectedStickers, setSelected
       <div
         style={{
           position: "relative",
-          width: 270,
-          height: 480,
+          width: 360,
+          height: 640,
           backgroundImage: `url("/video-placeholder.png")`, // replace with your video frame
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -87,7 +85,7 @@ export default function StickerTab({stockStickers, selectedStickers, setSelected
               style={{ position: "relative", width: "100%", height: "100%" }}
             >
               <img
-                src={sticker.src}
+                src={sticker.url}
                 alt="sticker"
                 style={{ width: "100%", height: "100%" }}
               />

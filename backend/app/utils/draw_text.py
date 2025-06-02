@@ -16,7 +16,7 @@ def build_drawtext_filter(subtitles, font_path=None, text_effect=None):
         y_default = "y=h-100"
         fontsize_default = "fontsize=17"
 
-        if text_effect == "fade":
+        if text_effect == "Fade":
             alpha_expr = (
                 f"if(lt(t,{start + 0.0}),0,"
                 f"if(lt(t,{start + fade_duration}),(t-{start})/{fade_duration},"
@@ -25,22 +25,22 @@ def build_drawtext_filter(subtitles, font_path=None, text_effect=None):
             )
             drawtext = f"drawtext={base}:{y_default}:{fontsize_default}:alpha='{alpha_expr}':{enable_expr}"
 
-        elif text_effect == "wave":
+        elif text_effect == "Wave":
             # Y position oscillates with sine function
             y_expr = f"h-100 + 10*sin(2*PI*(t-{start})*2)"
             drawtext = f"drawtext={base}:y='{y_expr}':{fontsize_default}:alpha=1:{enable_expr}"
 
-        elif text_effect == "slide":
+        elif text_effect == "Slide":
             # Slide up from bottom to y=h-100
             slide_y = f"(h+50)-(min(t-{start},{fade_duration})/{fade_duration})*150"
             drawtext = f"drawtext={base}:y='{slide_y}':{fontsize_default}:alpha=1:{enable_expr}"
 
-        elif text_effect == "scale":
+        elif text_effect == "Scale":
             # Font size pulses up and down using sine
             font_expr = f"18 + 4*sin(2*PI*(t-{start})*1)"
             drawtext = f"drawtext={base}:{y_default}:fontsize='{font_expr}':alpha=1:{enable_expr}"
 
-        elif text_effect == "zoom":
+        elif text_effect == "Zoom":
             # Zoom in by scaling up font size from small to normal in fade_duration
             zoom_expr = f"if(lt(t,{start + fade_duration}), 10 + (t-{start})*((18-10)/{fade_duration}), 18)"
             drawtext = f"drawtext={base}:{y_default}:fontsize='{zoom_expr}':alpha=1:{enable_expr}"
