@@ -1,4 +1,5 @@
 import os
+import requests
 import subprocess
 import tempfile
 import shutil
@@ -153,6 +154,20 @@ class VideoService:
             output_path
         ]
         subprocess.run(cmd, check=True)
+    
+    
+    def __download_file_from_cloudinary(self, url: str, save_dir: str, filename: str) -> str:
+        response = requests.get(url, stream=True)
+        response.raise_for_status()  # Raise error for bad responses
+
+        os.makedirs(save_dir, exist_ok=True)  # Create directory if needed
+        file_path = os.path.join(save_dir, filename)
+
+        with open(file_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+
+        return file_path
         
         
     async def create_video(self, text_effect=None, music=None, stickers=None):
@@ -161,7 +176,31 @@ class VideoService:
         output_path = f'public/videos/{self.email}-output.mp4'
 
         with tempfile.TemporaryDirectory() as temp_dir:
+            local_stickers = None
+            if stickers:
+                local_stickers = []
+                for i, sticker in enumerate(stickers):
+                    sticker_path = self.__download_file_from_cloudinary(
+                        sticker['url'], temp_dir, f'{self.email}-sticker_{i}.png'
+                    )
+                    # Replace URL with local path, keep other properties
+                    local_stickers.append({
+                        **sticker,
+                        'local_path': sticker_path
+                    })
+
+            # Download music locally if provided
+            local_music_path = None
+            if music:
+                local_music_path = self.__download_file_from_cloudinary(
+                    music['url'], temp_dir, f'{self.email}-background_music.mp3'
+                )
+                
             for i, (image_url, audio_url, subtitle_text) in enumerate(zip(self.image_urls, self.audio_urls, self.subtitles)):
+                # Download cloudinary assets locally
+                image_path = self.__download_file_from_cloudinary(image_url, temp_dir, f'{self.email}-image_{i}.jpg')
+                audio_path = self.__download_file_from_cloudinary(audio_url, temp_dir, f'{self.email}-audio_{i}.mp3')
+                
                 parts = self.__split_subtitles(subtitle_text, 5)
 
                 # Generate segment subtitles with timing relative to total video
@@ -169,7 +208,7 @@ class VideoService:
 
                 # Create segment video
                 segment_path, duration = self.__create_video_segment(
-                    image_url, audio_url, segment_subs,
+                    image_path, audio_path, segment_subs,
                     font_path="/path/to/font.ttf",
                     text_effect=text_effect,
                     temp_dir=temp_dir,
@@ -179,19 +218,17 @@ class VideoService:
                 current_time += duration
 
             #Concatenate segments into full video WITHOUT music
-            concatenated_video_path = os.path.join(temp_dir, "concatenated.mp4")
+            concatenated_video_path = os.path.join(temp_dir, f'{self.email}-concatenated.mp4')
             self.__concatenate_segments(video_segments, temp_dir, concatenated_video_path)
             
-            if music:
-                self.__mix_music_with_video(concatenated_video_path, music['url'], output_path)
+            if local_music_path:
+                self.__mix_music_with_video(concatenated_video_path, local_music_path, output_path)
             else:
-                #Rename/move concatenated video to output_path if no music
                 shutil.move(concatenated_video_path, output_path)
-                
-            # If stickers are provided, add them to the final video
-            if stickers:
-                temp_sticker_path = os.path.join(temp_dir, "with_stickers.mp4")
-                self.__add_stickers_to_video(output_path, stickers, temp_sticker_path)
+
+            if local_stickers:
+                temp_sticker_path = os.path.join(temp_dir, f'{self.email}-with_stickers.mp4')
+                self.__add_stickers_to_video(output_path, local_stickers, temp_sticker_path)
                 shutil.move(temp_sticker_path, output_path)
 
         # Get final video duration

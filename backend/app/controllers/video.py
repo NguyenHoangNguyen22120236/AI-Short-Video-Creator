@@ -115,8 +115,8 @@ class VideoController:
     
     
     @staticmethod
-    async def update_video(db: AsyncSession, email: str, id: int, text_effect: str=None, music: str=None, stickers: str=None):
-        video = await Video.get_by_id(db, id)
+    async def update_video(db: AsyncSession, email: str, video_id: int, text_effect: str=None, music: str=None, stickers: str=None):
+        video = await Video.get_by_id(db, video_id)
         
         if not video:
             raise HTTPException(status_code=404, detail="Video not found")
@@ -156,3 +156,15 @@ class VideoController:
             raise HTTPException(status_code=500, detail="Failed to update video")
         
         return result, 200
+    
+    
+    @staticmethod
+    async def get_video(db: AsyncSession, video_id: int):
+        try:
+            video = await Video.get_by_id(db, video_id)
+            return video, 200
+        except NoResultFound:
+            raise HTTPException(status_code=404, detail="Video not found")
+        except Exception as e:
+            print(f"Error fetching video: {e}")
+            raise HTTPException(status_code=500, detail="Failed to fetch video")

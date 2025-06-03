@@ -21,28 +21,48 @@ app.include_router(trendy_fetcher_router, prefix="/api/trendy_fetcher", tags=["t
 
 '''from services.video import VideoService
 
-video_service = VideoService(
-    image_urls=[
-        'public/images/output0.jpg',
-        'public/images/output1.jpg',
-        'public/images/output2.jpg',
-        'public/images/output3.jpg'
-    ],
-    audio_urls=[
-        'public/audios/output0.mp3',
-        'public/audios/output1.mp3',
-        'public/audios/output2.mp3',
-        'public/audios/output3.mp3'
-    ],
-    subtitles=[
-        'Mat trời ló dạng qua làn sương mỏng, một bà cụ áo dài chậm rãi đẩy xe qua cánh đồng lúa xanh mướt. Tiếng cười trẻ con vang lên từ ngôi nhà mái tranh, mùi khói bếp lan tỏa.',
-        'Phố cờ đỏ sao vàng rực rỡ, tiếng rao hàng rong hòa cùng nhịp xích lô. Bàn tay thoăn thoắt gói bánh cuốn, giọt mắm cay nồng thấm vào vị giác người lữ khách.',
-        'Chiều buông xuống bến sông Hồng, mái chèo khua nước lấp lánh ánh vàng. Câu hò "ơi à ơi..." vọng từ con thuyền nan, đôi mắt người chài lưới in bóng hoàng hôn.',
-        'Đêm thành phố thức giấc trong muôn ngàn đèn hoa đăng. Bàn tay trẻ lau vội mồ hôi, gõ phím máy tính bên tách cà phê đen nóng hổi - nhịp sống mới vẫn giữ hồn xưa.'
-    ]
-)
+email = "123@example.com"
+async def main():
+    video_service = VideoService(
+        image_urls= [
+            'https://res.cloudinary.com/dfa9owyll/image/upload/v1748874946/nwzsbnlmsx32cz2dbkto.jpg',
+            'https://res.cloudinary.com/dfa9owyll/image/upload/v1748874947/ml8ikzms7xbsluipe89o.jpg',
+            'https://res.cloudinary.com/dfa9owyll/image/upload/v1748874947/d4z5elp7gulauecjwqk2.jpg',
+            'https://res.cloudinary.com/dfa9owyll/image/upload/v1748932066/kywpta0mdbbltwdplzul.jpg'
+        ],
+        audio_urls= [
+            'https://res.cloudinary.com/dfa9owyll/raw/upload/v1748874949/hfnkkgcx8cta3fqd3kv5.mp3',
+            'https://res.cloudinary.com/dfa9owyll/raw/upload/v1748874950/taeazcfojzmxvtx0v77u.mp3',
+            'https://res.cloudinary.com/dfa9owyll/raw/upload/v1748874950/gtojem7k986oa30s72rp.mp3',
+            'https://res.cloudinary.com/dfa9owyll/raw/upload/v1748874951/qqdwgejh7ba12rpmrewv.mp3'
+        ],
+        subtitles=[
+            f'Mat trời ló dạng qua làn sương mỏng, một bà cụ áo dài chậm rãi đẩy xe qua cánh đồng lúa xanh mướt. Tiếng cười trẻ con vang lên từ ngôi nhà mái tranh, mùi khói bếp lan tỏa.',
+            f'Phố cờ đỏ sao vàng rực rỡ, tiếng rao hàng rong hòa cùng nhịp xích lô. Bàn tay thoăn thoắt gói bánh cuốn, giọt mắm cay nồng thấm vào vị giác người lữ khách.',
+            f'Chiều buông xuống bến sông Hồng, mái chèo khua nước lấp lánh ánh vàng. Câu hò "ơi à ơi..." vọng từ con thuyền nan, đôi mắt người chài lưới in bóng hoàng hôn.',
+            f'Đêm thành phố thức giấc trong muôn ngàn đèn hoa đăng. Bàn tay trẻ lau vội mồ hôi, gõ phím máy tính bên tách cà phê đen nóng hổi - nhịp sống mới vẫn giữ hồn xưa.'
+        ],
+        email=email
+    )
+    result = await video_service.create_video(
+        music={
+            'id': 1,
+            'title':'Funny tango dramatic music',
+            'url':'https://res.cloudinary.com/dfa9owyll/raw/upload/v1748671858/d7emufgt2vj3qujxpahl.mp3'
+        },
+        stickers= [
+            {"url": "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673384/qf8ylj8gpharbdurvcc8.png", "x": 100, "y": 50, "width": 64, "height": 64},
+            {"url": "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673385/jldqihwdmre62kyc1ook.png", "x": 300, "y": 150, "width": 48, "height": 48}
+        ]
+    )
 
-print(video_service.create_video_no_subtitles())'''
+    print(result)
+    
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())'''
+
+
 '''from third_party.cloudinary import CloudinaryService
 
 cloudinary_service = CloudinaryService()
@@ -125,7 +145,7 @@ video = {
             'https://res.cloudinary.com/dfa9owyll/image/upload/v1748874946/nwzsbnlmsx32cz2dbkto.jpg',
             'https://res.cloudinary.com/dfa9owyll/image/upload/v1748874947/ml8ikzms7xbsluipe89o.jpg',
             'https://res.cloudinary.com/dfa9owyll/image/upload/v1748874947/d4z5elp7gulauecjwqk2.jpg',
-            'https://res.cloudinary.com/dfa9owyll/image/upload/v1748874948/qcbgqsd7hgpjdyxwvnkd.jpg'
+            'https://res.cloudinary.com/dfa9owyll/image/upload/v1748932066/kywpta0mdbbltwdplzul.jpg'
         ],
     "audio_urls": [
             'https://res.cloudinary.com/dfa9owyll/raw/upload/v1748874949/hfnkkgcx8cta3fqd3kv5.mp3',
@@ -141,12 +161,13 @@ video = {
         ],
     "text_effect": None,
     "music": {
+        "id": 1,
         'title':'Funny tango dramatic music',
         'url':'https://res.cloudinary.com/dfa9owyll/raw/upload/v1748671858/d7emufgt2vj3qujxpahl.mp3'
     },
     "stickers": [
-        {"path": "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673384/qf8ylj8gpharbdurvcc8.png", "x": 100, "y": 50, "width": 64, "height": 64},
-        {"path": "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673385/jldqihwdmre62kyc1ook.png", "x": 300, "y": 150, "width": 48, "height": 48}
+        {"id": 1, "url": "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673384/qf8ylj8gpharbdurvcc8.png", "x": 100, "y": 50, "width": 64, "height": 64},
+        {"id": 2, "url": "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673385/jldqihwdmre62kyc1ook.png", "x": 300, "y": 150, "width": 48, "height": 48}
     ]
 }
 
@@ -198,9 +219,16 @@ if __name__ == "__main__":
 https://res.cloudinary.com/dfa9owyll/image/upload/v1748874946/nwzsbnlmsx32cz2dbkto.jpg
 https://res.cloudinary.com/dfa9owyll/image/upload/v1748874947/ml8ikzms7xbsluipe89o.jpg
 https://res.cloudinary.com/dfa9owyll/image/upload/v1748874947/d4z5elp7gulauecjwqk2.jpg
-https://res.cloudinary.com/dfa9owyll/image/upload/v1748874948/qcbgqsd7hgpjdyxwvnkd.jpg
+https://res.cloudinary.com/dfa9owyll/image/upload/v1748932066/kywpta0mdbbltwdplzul.jpg
 https://res.cloudinary.com/dfa9owyll/raw/upload/v1748874949/hfnkkgcx8cta3fqd3kv5.mp3
 https://res.cloudinary.com/dfa9owyll/raw/upload/v1748874950/taeazcfojzmxvtx0v77u.mp3
 https://res.cloudinary.com/dfa9owyll/raw/upload/v1748874950/gtojem7k986oa30s72rp.mp3
 https://res.cloudinary.com/dfa9owyll/raw/upload/v1748874951/qqdwgejh7ba12rpmrewv.mp3
 '''
+
+
+'''from third_party.cloudinary import CloudinaryService
+
+cloudinary_service = CloudinaryService()
+
+print(cloudinary_service.delete_file('https://res.cloudinary.com/dfa9owyll/video/upload/v1748936061/engtqh8xj9vi4qctfpsu.mp4'))'''

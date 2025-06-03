@@ -2,6 +2,7 @@ import cloudinary
 import cloudinary.uploader
 from dotenv import load_dotenv
 import os
+import re
 
 load_dotenv()
 
@@ -31,19 +32,24 @@ class CloudinaryService:
         return upload_result.get("secure_url")
     
     
-    def delete_file(self, cloudinary_url):
-        # Extract public_id from the Cloudinary URL
+    def __extract_public_id(self, url):
+        # Remove the Cloudinary domain and version
+        match = re.search(r'/upload/[^/]+/(.+)\.\w+$', url)
+        if match:
+            return match.group(1)
+        else:
+            raise ValueError("Invalid Cloudinary URL format")
+    
+    
+    def delete_file(self, cloudinary_url, resource_type="video"):
         if not cloudinary_url:
             raise ValueError("Cloudinary URL cannot be empty.")
-        
-        parts = cloudinary_url.split('/')
-        
-        if len(parts) < 2:
-            raise ValueError("Invalid Cloudinary URL format.")
-        
-        public_id = parts[-1].split('.')[0]
-        
-        if not public_id:
-            raise ValueError("Public ID could not be extracted from the URL.")
-        
-        cloudinary.uploader.destroy(public_id)
+
+        try:
+            public_id = self.__extract_public_id(cloudinary_url)
+            result = cloudinary.uploader.destroy(public_id, resource_type=resource_type)
+            
+        except (ValueError, IndexError):
+            raise ValueError("Could not parse public ID from Cloudinary URL.")
+
+        return result

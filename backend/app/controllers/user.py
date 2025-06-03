@@ -22,5 +22,8 @@ class UserController:
     @staticmethod
     async def login(db: AsyncSession, email: str, password: str):
         user = await UserController.authenticate_user(db, email, password)
-        token = create_access_token({"sub": user.email})
+        token = create_access_token({
+            "sub": user.email,
+            "user_id": user.id
+        })
         return {"access_token": token, "token_type": "bearer"}

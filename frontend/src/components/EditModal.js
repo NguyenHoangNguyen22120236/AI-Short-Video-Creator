@@ -4,7 +4,7 @@ import TextEffectTab from "./TextEffectTab";
 import MusicTab from "./MusicTab";
 import StickerTab from "./StickerTab";
 
-const textEffects = ["Fade", "Slide In", "Scale", "Typewriter"];
+const textEffects = ['Fade', 'Wave', 'Slide', 'Scale', 'Zoom'];
 
 const stockMusics = [
   {
@@ -45,7 +45,8 @@ export default function EditModal({
   onClose,
   onApplyTextEffect,
   onApplyMusic,
-  onApplyStickers
+  onApplyStickers,
+  onUpdateData
 }) {
   const [activeTab, setActiveTab] = useState("Text Effect");
   const [selectedEffect, setSelectedEffect] = useState(currentData.selectedEffect);
@@ -56,6 +57,7 @@ export default function EditModal({
     onApplyTextEffect(selectedEffect);
     onApplyMusic(currentMusic);
     onApplyStickers(selectedStickers);
+    onUpdateData()
     onClose(); // close modal
   };
 

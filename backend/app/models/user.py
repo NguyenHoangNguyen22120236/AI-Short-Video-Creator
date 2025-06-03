@@ -4,6 +4,7 @@ from ._base import Base
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.orm import relationship
 
 class User(Base):
     __tablename__ = 'users'
@@ -17,6 +18,8 @@ class User(Base):
     auth_provider = Column(String(20), nullable=True)  # e.g., 'google', 'local'
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    
+    videos = relationship("Video", back_populates="user")
     
     
     @classmethod

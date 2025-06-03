@@ -16,7 +16,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/history-see-all" element={<HistorySeeAll />} />
         <Route path="/create-video" element={<CreateVideo />} />
-        <Route path="/preview-video" element={<PreviewVideo />} />
+        <Route path="/preview-video/:id" element={<PreviewVideo />} />
       </Routes>
     </BrowserRouter>
   );

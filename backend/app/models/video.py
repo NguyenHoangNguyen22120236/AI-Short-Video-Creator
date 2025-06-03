@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.exc import NoResultFound, IntegrityError
+from sqlalchemy.orm import relationship
 
 class Video(Base):
     __tablename__ = 'videos'
@@ -21,6 +22,8 @@ class Video(Base):
     subtitles = Column(ARRAY(String), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    
+    user = relationship("User", back_populates="videos")
     
     
     @classmethod
@@ -51,8 +54,7 @@ class Video(Base):
     @classmethod
     async def update(cls, db: AsyncSession, video_id: int, **kwargs):
         """Update a video asynchronously."""
-        result = await db.execute(select(cls).filter_by(id=video_id))
-        video = result.scalars().first()
+        video = await cls.get_by_id(db, video_id)
         if not video:
             raise NoResultFound(f"Video with id {video_id} not found")
         
