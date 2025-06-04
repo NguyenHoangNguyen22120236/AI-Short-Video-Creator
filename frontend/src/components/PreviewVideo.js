@@ -1,11 +1,11 @@
 import "../styles/PreviewVideo.css";
 import { useEffect, useState, useRef } from "react";
 import EditModal from "./EditModal";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { useLocation, useParams } from "react-router-dom";
+import Modal from "react-bootstrap/Modal";
+
 const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkxMzQ1OTh9.qWNxqwpozM-xds2ClF4bE27-v1y4WzEXmDMpbQY61hA";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkxMzQ1OTh9.qWNxqwpozM-xds2ClF4bE27-v1y4WzEXmDMpbQY61hA";
 const data = {
   id: 1,
   video:
@@ -37,6 +37,7 @@ const data = {
 };
 
 export default function PreviewVideo() {
+  const videoRef = useRef(null);
   const location = useLocation();
   const { id } = useParams();
   const passedData = location.state?.data || null;
@@ -46,6 +47,10 @@ export default function PreviewVideo() {
   const [selectedEffect, setSelectedEffect] = useState(null);
   const [currentMusic, setCurrentMusic] = useState(null);
   const [selectedStickers, setSelectedStickers] = useState([]);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState("");
 
   // Fetch from backend if no passedData
   useEffect(() => {
@@ -86,12 +91,19 @@ export default function PreviewVideo() {
     }
   }, [passedData, id]);
 
-  if (!data) {
-    return <h1 className="text-white">Loading...</h1>;
-  }
+  useEffect(() => {
+    if (isEditOpen && videoRef.current) {
+      videoRef.current.pause();
+    }
+  }, [isEditOpen]);
 
-  const handleUpdateData = async () => {
-    console.log("Updating data");
+  const handleUpdateData = async (
+    selectedEffect,
+    currentMusic,
+    selectedStickers
+  ) => {
+    setIsUpdating(true);
+
     const newData = {
       text_effect: selectedEffect,
       music: currentMusic,
@@ -99,8 +111,8 @@ export default function PreviewVideo() {
     };
 
     try {
-      /*const response = await fetch(
-        `http://127.0.0.1:8000/api/video/update_video/${data.id}`,
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/video/update_video/${id}`,
         {
           method: "PUT",
           headers: {
@@ -119,17 +131,21 @@ export default function PreviewVideo() {
       setData(videoData);
       setSelectedEffect(videoData.text_effect || null);
       setCurrentMusic(videoData.music || null);
-      setSelectedStickers(videoData.stickers || []);*/
+      setSelectedStickers(videoData.stickers || []);
 
-      alert("Video updated successfully!");
+      setUpdateMessage("Video updated successfully!");
+      setShowUpdateModal(true);
     } catch (error) {
-      console.error("Error updating video:", error);
+      setUpdateMessage(
+        "Failed to update video. Please Try Again.\n" +
+          "Error: " +
+          error.message
+      );
+      setShowUpdateModal(true);
+    } finally {
+      setIsUpdating(false);
     }
   };
-
-  console.log("selectedEffect:", selectedEffect);
-  console.log("currentMusic:", currentMusic.title);
-  console.log("selectedStickers:", selectedStickers);
 
   const handleApplyTextEffect = (effect) => {
     setSelectedEffect(effect);
@@ -151,6 +167,7 @@ export default function PreviewVideo() {
     <div className="d-flex flex-column align-items-center justify-content-center text-white">
       <div className="video-container">
         <video
+          ref={videoRef}
           src={data?.video}
           controls
           width={360}
@@ -158,8 +175,13 @@ export default function PreviewVideo() {
           style={{ background: "#000" }}
         />
       </div>
+      {isUpdating && <div className="video-blocker" />}
 
-      <button className="edit-button p2" onClick={handleOpenEditModal}>
+      <button
+        className="edit-button p2"
+        onClick={handleOpenEditModal}
+        disabled={isUpdating}
+      >
         Edit
       </button>
 
@@ -169,6 +191,12 @@ export default function PreviewVideo() {
           style={{ display: "none" }}
           preload="auto"
         />
+      )}
+
+      {isUpdating && (
+        <div className="blocking-overlay">
+          <div className="loader"></div>
+        </div>
       )}
 
       {isEditOpen && (
@@ -183,8 +211,33 @@ export default function PreviewVideo() {
           onApplyMusic={handleApplyMusic}
           onApplyStickers={handleApplyStickers}
           onUpdateData={handleUpdateData}
+          disabled={isUpdating}
         />
       )}
+
+      <Modal
+        show={showUpdateModal}
+        onHide={() => setShowUpdateModal(false)}
+        centered
+        dialogClassName="custom-modal"
+      >
+        <Modal.Header>
+          <Modal.Title>Update Status</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="d-flex flex-column">
+          {updateMessage.split("\n").map((line, idx) => (
+            <div key={idx}>{line}</div>
+          ))}
+          <div className="d-flex justify-content-end mt-3">
+            <button
+              className="btn btn-primary"
+              onClick={() => setShowUpdateModal(false)}
+            >
+              OK
+            </button>
+          </div>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 }

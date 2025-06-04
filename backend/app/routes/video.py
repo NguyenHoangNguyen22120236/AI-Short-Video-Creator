@@ -27,10 +27,10 @@ class Music(BaseModel):
 class Sticker(BaseModel):
     id: int
     url: str
-    x: int
-    y: int
-    width: int
-    height: int
+    x: float
+    y: float
+    width: float
+    height: float
 
 
 class VideoUpdateRequest(BaseModel):
@@ -72,6 +72,13 @@ async def update_video(
         music=music_dict,
         stickers=stickers_dict_list
     )
+    
+    #print('text effect: ', payload.text_effect)
+    #print('music: ', music_dict)
+    #print('stickers: ', stickers_dict_list)
+    
+    #result = 'no'
+    #status_code = 200  # Assuming the update was successful for this example
     
     return JSONResponse(content=result, status_code=status_code)
 

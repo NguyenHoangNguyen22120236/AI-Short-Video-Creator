@@ -53,11 +53,11 @@ export default function EditModal({
   const [currentMusic, setCurrentMusic] = useState(currentData.currentMusic);
   const [selectedStickers, setSelectedStickers] = useState(currentData.selectedStickers);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     onApplyTextEffect(selectedEffect);
     onApplyMusic(currentMusic);
     onApplyStickers(selectedStickers);
-    onUpdateData()
+    onUpdateData(selectedEffect, currentMusic, selectedStickers);
     onClose(); // close modal
   };
 
