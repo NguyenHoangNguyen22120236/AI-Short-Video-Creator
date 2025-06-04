@@ -157,6 +157,7 @@ class VideoService:
     
     
     def __download_file_from_cloudinary(self, url: str, save_dir: str, filename: str) -> str:
+        '''Download a file from a Cloudinary URL and save it locally.'''
         response = requests.get(url, stream=True)
         response.raise_for_status()  # Raise error for bad responses
 
@@ -168,6 +169,26 @@ class VideoService:
                 f.write(chunk)
 
         return file_path
+    
+    
+    def __generate_and_upload_thumbnail(self, video_path, email, cloudinary_service):
+        thumbnail_path = f'public/thumbnails/{email}-thumbnail.jpg'
+        
+        subprocess.run([
+            "ffmpeg", "-y",
+            "-ss", "00:00:01",
+            "-i", video_path,
+            "-vframes", "1",
+            "-q:v", "2",
+            thumbnail_path
+        ], check=True)
+        
+        thumbnail_url = cloudinary_service.upload_image(thumbnail_path)
+
+        if os.path.exists(thumbnail_path):
+            os.remove(thumbnail_path)
+
+        return thumbnail_url
         
         
     async def create_video(self, text_effect=None, music=None, stickers=None):
@@ -246,8 +267,12 @@ class VideoService:
         if os.path.exists(output_path):
             os.remove(output_path)
 
+        # Thumbnail generation and upload
+        thumbnail_url = self.__generate_and_upload_thumbnail(output_path, self.email, cloudinary_service)
+
         return {
             "video": video_url,
+            "thumbnail": thumbnail_url,
             "music": music,
             "text_effect": text_effect,
             "stickers": stickers,

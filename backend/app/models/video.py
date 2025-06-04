@@ -14,6 +14,7 @@ class Video(Base):
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     topic = Column(String(255), nullable=False)
     video = Column(Text, nullable=False)
+    thumbnail = Column(Text, nullable=True)
     music = Column(JSON, nullable=True)
     text_effect = Column(String(100), nullable=True)
     stickers = Column(ARRAY(JSON), nullable=True)

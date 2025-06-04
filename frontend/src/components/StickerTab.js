@@ -1,9 +1,12 @@
-import { useState} from "react";
+import { useState } from "react";
 import { Rnd } from "react-rnd";
 import "../styles/StickerTab.css";
 
-
-export default function StickerTab({stockStickers, selectedStickers, setSelectedStickers}) {
+export default function StickerTab({
+  stockStickers,
+  selectedStickers,
+  setSelectedStickers,
+}) {
   //const [stickers, setStickers] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
 

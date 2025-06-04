@@ -2,7 +2,8 @@ import "../styles/PreviewVideo.css";
 import { useEffect, useState, useRef } from "react";
 import EditModal from "./EditModal";
 import { useLocation, useParams } from "react-router-dom";
-import Modal from "react-bootstrap/Modal";
+import UpdateStatusModal from "./UpdateStatusModal";
+import LoadingStatus from "./LoadingStatus";
 
 const token =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkxMzQ1OTh9.qWNxqwpozM-xds2ClF4bE27-v1y4WzEXmDMpbQY61hA";
@@ -175,13 +176,8 @@ export default function PreviewVideo() {
           style={{ background: "#000" }}
         />
       </div>
-      {isUpdating && <div className="video-blocker" />}
 
-      <button
-        className="edit-button p2"
-        onClick={handleOpenEditModal}
-        disabled={isUpdating}
-      >
+      <button className="edit-button p2" onClick={handleOpenEditModal}>
         Edit
       </button>
 
@@ -193,11 +189,7 @@ export default function PreviewVideo() {
         />
       )}
 
-      {isUpdating && (
-        <div className="blocking-overlay">
-          <div className="loader"></div>
-        </div>
-      )}
+      {isUpdating && <LoadingStatus />}
 
       {isEditOpen && (
         <EditModal
@@ -211,33 +203,14 @@ export default function PreviewVideo() {
           onApplyMusic={handleApplyMusic}
           onApplyStickers={handleApplyStickers}
           onUpdateData={handleUpdateData}
-          disabled={isUpdating}
         />
       )}
 
-      <Modal
-        show={showUpdateModal}
-        onHide={() => setShowUpdateModal(false)}
-        centered
-        dialogClassName="custom-modal"
-      >
-        <Modal.Header>
-          <Modal.Title>Update Status</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="d-flex flex-column">
-          {updateMessage.split("\n").map((line, idx) => (
-            <div key={idx}>{line}</div>
-          ))}
-          <div className="d-flex justify-content-end mt-3">
-            <button
-              className="btn btn-primary"
-              onClick={() => setShowUpdateModal(false)}
-            >
-              OK
-            </button>
-          </div>
-        </Modal.Body>
-      </Modal>
+      <UpdateStatusModal
+        showUpdateModal={showUpdateModal}
+        setShowUpdateModal={setShowUpdateModal}
+        updateMessage={updateMessage}
+      />
     </div>
   );
 }
