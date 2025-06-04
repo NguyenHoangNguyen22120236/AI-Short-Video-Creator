@@ -6,7 +6,8 @@ def build_drawtext_filter(subtitles, font_path=None, text_effect=None):
         # Normalize times
         start = sub['start'] - segment_base_time
         end = sub['end'] - segment_base_time
-        text = sub['text'].replace('\n', '\\n').replace("'", "\\'").replace('"', '\\"')
+        #text = sub['text'].replace('\n', '\\n').replace("'", "\\'").replace('"', '\\"')
+        text = escape_drawtext_text(sub['text'])
 
         fade_duration = 0.3
 
@@ -55,3 +56,12 @@ def build_drawtext_filter(subtitles, font_path=None, text_effect=None):
         filters.append(drawtext)
 
     return ",".join(filters)
+
+
+def escape_drawtext_text(text):
+    # FFmpeg drawtext expects single-quoted string. Escape single quotes correctly.
+    text = text.replace("\\", "\\\\")        # Escape backslashes first
+    text = text.replace(":", "\\:")          # Escape colons
+    text = text.replace("'", "\\\\'")        # Escape single quotes
+    text = text.replace('\n', '\\n')         # Line break in FFmpeg
+    return text

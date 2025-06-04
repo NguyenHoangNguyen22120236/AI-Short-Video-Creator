@@ -1,10 +1,6 @@
 from third_party.google_cloud_api import GoogleCloudAPI
 
 class AudioService:
-    def __init__(self, ):
-        pass
-        
-    
     async def generate_audio(self, subtitles, language_code, email):
         google_cloud_api = GoogleCloudAPI()
         

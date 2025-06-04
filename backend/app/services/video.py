@@ -5,6 +5,7 @@ import tempfile
 import shutil
 from third_party.cloudinary import CloudinaryService
 from utils.draw_text import build_drawtext_filter
+from utils.url import is_url
 
 
 class VideoService:
@@ -171,7 +172,7 @@ class VideoService:
         return file_path
     
     
-    def __generate_and_upload_thumbnail(self, video_path, email, cloudinary_service):
+    async def __generate_and_upload_thumbnail(self, video_path, email, cloudinary_service):
         thumbnail_path = f'public/thumbnails/{email}-thumbnail.jpg'
         
         subprocess.run([
@@ -180,10 +181,11 @@ class VideoService:
             "-i", video_path,
             "-vframes", "1",
             "-q:v", "2",
+            "-f", "image2",
             thumbnail_path
         ], check=True)
         
-        thumbnail_url = cloudinary_service.upload_image(thumbnail_path)
+        thumbnail_url = await cloudinary_service.upload_image(thumbnail_path)
 
         if os.path.exists(thumbnail_path):
             os.remove(thumbnail_path)
@@ -218,11 +220,22 @@ class VideoService:
                 )
                 
             for i, (image_url, audio_url, subtitle_text) in enumerate(zip(self.image_urls, self.audio_urls, self.subtitles)):
-                # Download cloudinary assets locally
-                image_path = self.__download_file_from_cloudinary(image_url, temp_dir, f'{self.email}-image_{i}.jpg')
-                audio_path = self.__download_file_from_cloudinary(audio_url, temp_dir, f'{self.email}-audio_{i}.mp3')
+                if is_url(image_url):
+                    # Download from Cloudinary
+                    image_path = self.__download_file_from_cloudinary(image_url, temp_dir, f'{self.email}-image_{i}.jpg')
+                else:
+                    # Use local path directly
+                    image_path = image_url
+
+                if is_url(audio_url):
+                    audio_path = self.__download_file_from_cloudinary(audio_url, temp_dir, f'{self.email}-audio_{i}.mp3')
+                else:
+                    audio_path = audio_url
+
                 
                 parts = self.__split_subtitles(subtitle_text, 5)
+                
+                print('Splitting subtitles into parts:', parts)
 
                 # Generate segment subtitles with timing relative to total video
                 segment_subs, part_duration = self.__generate_segment_subtitles(parts, current_time, self.__get_audio_duration(audio_url))
@@ -261,14 +274,16 @@ class VideoService:
         
         # Upload video to Cloudinary
         cloudinary_service = CloudinaryService()
-        video_url = cloudinary_service.upload_video(output_path)
+        video_url = await cloudinary_service.upload_video(output_path)
+
+        # Thumbnail generation and upload
+        thumbnail_url = await self.__generate_and_upload_thumbnail(output_path, self.email, cloudinary_service)
         
         # delete output video file after upload
         if os.path.exists(output_path):
             os.remove(output_path)
-
-        # Thumbnail generation and upload
-        thumbnail_url = self.__generate_and_upload_thumbnail(output_path, self.email, cloudinary_service)
+            
+        print('video_url:', video_url)
 
         return {
             "video": video_url,

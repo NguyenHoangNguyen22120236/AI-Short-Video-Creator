@@ -7,105 +7,74 @@ from third_party.cloudinary import CloudinaryService
 from fastapi import HTTPException
 import os
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.video import Video
 
-mock_video = {
-    "topic": "Video 1",
-    "video": "https://res.cloudinary.com/dfa9owyll/video/upload/v1748754976/engtqh8xj9vi4qctfpsu.mp4",
-    "image_urls": [
-            f'public/images/123@example.com-output0.jpg',
-            f'public/images/123@example.com-output1.jpg',
-            f'public/images/123@example.com-output2.jpg',
-            f'public/images/123@example.com-output3.jpg'
-        ],
-    "audio_urls": [
-            f'public/audios/123@example.com-output0.mp3',
-            f'public/audios/123@example.com-output1.mp3',
-            f'public/audios/123@example.com-output2.mp3',
-            f'public/audios/123@example.com-output3.mp3'
-        ],
-    "subtitles": [
-            f'Mat trời ló dạng qua làn sương mỏng, một bà cụ áo dài chậm rãi đẩy xe qua cánh đồng lúa xanh mướt. Tiếng cười trẻ con vang lên từ ngôi nhà mái tranh, mùi khói bếp lan tỏa.',
-            f'Phố cờ đỏ sao vàng rực rỡ, tiếng rao hàng rong hòa cùng nhịp xích lô. Bàn tay thoăn thoắt gói bánh cuốn, giọt mắm cay nồng thấm vào vị giác người lữ khách.',
-            f'Chiều buông xuống bến sông Hồng, mái chèo khua nước lấp lánh ánh vàng. Câu hò "ơi à ơi..." vọng từ con thuyền nan, đôi mắt người chài lưới in bóng hoàng hôn.',
-            f'Đêm thành phố thức giấc trong muôn ngàn đèn hoa đăng. Bàn tay trẻ lau vội mồ hôi, gõ phím máy tính bên tách cà phê đen nóng hổi - nhịp sống mới vẫn giữ hồn xưa.'
-        ],
-    "text_effect": None,
-    "music": {
-        'title':'Funny tango dramatic music',
-        'url':'https://res.cloudinary.com/dfa9owyll/raw/upload/v1748671858/d7emufgt2vj3qujxpahl.mp3'
-    },
-    "stickers": [
-        {"path": "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673384/qf8ylj8gpharbdurvcc8.png", "x": 100, "y": 50, "width": 64, "height": 64},
-        {"path": "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673385/jldqihwdmre62kyc1ook.png", "x": 300, "y": 150, "width": 48, "height": 48}
-    ]
-}
-
 class VideoController:
     @staticmethod
-    async def create_video(db: AsyncSession, topic: str, email: str, language_code: str = "en-US"):
+    async def create_video(db: AsyncSession, topic: str, email: str, user_id: int, language_code: str = "en-US"):
         if not topic:
             raise HTTPException(status_code=400, detail="Topic is required")
         
         try:
-            '''subtitles_service = SubtitlesService(topic=topic, language_code=language_code)
+            subtitles_service = SubtitlesService(topic=topic, language_code=language_code)
             subtitles = await subtitles_service.generate_subtitles()
             
             audio_service = AudioService()
             image_service = ImageService()
             
             audio_urls, image_urls = await asyncio.gather(
-                audio_service.generate_audio(subtitles=subtitles, language_code=language_code),
-                image_service.generate_image(subtitles=subtitles)
-            )'''
+                audio_service.generate_audio(subtitles=subtitles, language_code=language_code, email=email),
+                image_service.generate_image(subtitles=subtitles, email=email)
+            )
             
             video_service = VideoService(
-                image_urls=[
-                    f'public/images/{email}-output0.jpg',
-                    f'public/images/{email}-output1.jpg',
-                    f'public/images/{email}-output2.jpg',
-                    f'public/images/{email}-output3.jpg'
-                ],
-                audio_urls=[
-                    f'public/audios/{email}-output0.mp3',
-                    f'public/audios/{email}-output1.mp3',
-                    f'public/audios/{email}-output2.mp3',
-                    f'public/audios/{email}-output3.mp3'
-                ],
-                subtitles=[
-                    f'Mat trời ló dạng qua làn sương mỏng, một bà cụ áo dài chậm rãi đẩy xe qua cánh đồng lúa xanh mướt. Tiếng cười trẻ con vang lên từ ngôi nhà mái tranh, mùi khói bếp lan tỏa.',
-                    f'Phố cờ đỏ sao vàng rực rỡ, tiếng rao hàng rong hòa cùng nhịp xích lô. Bàn tay thoăn thoắt gói bánh cuốn, giọt mắm cay nồng thấm vào vị giác người lữ khách.',
-                    f'Chiều buông xuống bến sông Hồng, mái chèo khua nước lấp lánh ánh vàng. Câu hò "ơi à ơi..." vọng từ con thuyền nan, đôi mắt người chài lưới in bóng hoàng hôn.',
-                    f'Đêm thành phố thức giấc trong muôn ngàn đèn hoa đăng. Bàn tay trẻ lau vội mồ hôi, gõ phím máy tính bên tách cà phê đen nóng hổi - nhịp sống mới vẫn giữ hồn xưa.'
-                ],
+                image_urls=image_urls,
+                audio_urls=audio_urls,
+                subtitles=subtitles,
                 email=email
             )
-            result = await video_service.create_video(
-                music={
-                    'id': 1,
-                    'title':'Funny tango dramatic music',
-                    'url':'https://res.cloudinary.com/dfa9owyll/raw/upload/v1748671858/d7emufgt2vj3qujxpahl.mp3'
-                },
-                stickers= [
-                    {"url": "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673384/qf8ylj8gpharbdurvcc8.png", "x": 100, "y": 50, "width": 64, "height": 64},
-                    {"url": "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673385/jldqihwdmre62kyc1ook.png", "x": 300, "y": 150, "width": 48, "height": 48}
-                ]
-                )
+            result = await video_service.create_video()
             
-            # Upload video to Cloudinary
-            '''cloudinary_service = CloudinaryService()
-            video_url = cloudinary_service.upload_video(output_path)'''
+            # Save video metadata to database
+            video_data = result.copy()
+            
+            # Upload image and audio files to Cloudinary
+            cloudinary_service = CloudinaryService()
+            upload_image_tasks = []
+            upload_audio_tasks = []
+
+            for i in range(len(image_urls)):
+                image_path = f'public/images/{email}-output{i}.jpg'
+                audio_path = f'public/audios/{email}-output{i}.mp3'
+                
+                # Append tasks to the list
+                upload_image_tasks.append(cloudinary_service.upload_image(image_path))
+                upload_audio_tasks.append(cloudinary_service.upload_audio(audio_path))
+
+            # Run all image and audio uploads concurrently
+            image_results, audio_results = await asyncio.gather(
+                asyncio.gather(*upload_image_tasks),
+                asyncio.gather(*upload_audio_tasks)
+            )
+
+            # Add results to video_data
+            video_data['image_urls'] = image_results
+            video_data['audio_urls'] = audio_results
+            video_data['topic'] = topic
+            video_data['subtitles'] = subtitles
+            
+            # Create video record in the database
+            await Video.create(db, user_id=user_id, video_data=video_data)
             
             #delete files after video creation
-            '''for i in range(len(image_urls)):
+            for i in range(len(image_urls)):
                 image_path = f'public/images/{email}-output{i}.jpg'
                 audio_path = f'public/audios/{email}-output{i}.mp3'
                 if os.path.exists(image_path):
                     os.remove(image_path)
                 if os.path.exists(audio_path):
-                    os.remove(audio_path)'''
+                    os.remove(audio_path)
             
         except Exception as e:
             print(f"Error creating video: {e}")
@@ -168,3 +137,6 @@ class VideoController:
         except Exception as e:
             print(f"Error fetching video: {e}")
             raise HTTPException(status_code=500, detail="Failed to fetch video")
+        
+    
+    

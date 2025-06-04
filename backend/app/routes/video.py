@@ -49,7 +49,8 @@ async def create_video_no_subtitles(
         db=db,
         topic=payload.topic,
         email=user_data.get("sub"),
-        language_code=payload.language
+        language_code=payload.language,
+        user_id=user_data.get("user_id")
     )
     return JSONResponse(content=result, status_code=status_code)
 

@@ -2,6 +2,8 @@ import "../styles/CreateVideo.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "react-bootstrap/Modal";
+import LoadingStatus from "./LoadingStatus";
+import UpdateStatusModal from "./UpdateStatusModal";
 
 export default function CreateVideo() {
   const [topic, setTopic] = useState("");
@@ -10,6 +12,9 @@ export default function CreateVideo() {
   const [trendyTopics, setTrendyTopics] = useState([]);
   const [location, setLocation] = useState("US");
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -39,7 +44,8 @@ export default function CreateVideo() {
 
   const handleGenerateVideo = async () => {
     if (!topic.trim()) {
-      alert("Please enter or select a topic first.");
+      setUpdateMessage("Please enter a topic.");
+      setShowUpdateModal(true);
       return;
     }
 
@@ -48,7 +54,8 @@ export default function CreateVideo() {
     try {
       //const token = localStorage.getItem('access_token');
 
-      const token = ""; // Replace with your actual token logic
+      const token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkxMzQ1OTh9.qWNxqwpozM-xds2ClF4bE27-v1y4WzEXmDMpbQY61hA"; // Replace with your actual token logic
 
       const response = await fetch(
         "http://127.0.0.1:8000/api/video/create_video",
@@ -72,11 +79,17 @@ export default function CreateVideo() {
         navigate("/preview-video", { state: { data: data } });
         //console.log('Video generated successfully:', data);
       } else {
-        alert("Video generation failed.");
+        setUpdateMessage("Failed to generate video. Please try again.");
+        setShowUpdateModal(true);
       }
     } catch (error) {
       console.error("Error generating video:", error);
-      alert("An error occurred while generating the video.");
+      setUpdateMessage(
+        "Failed to create video. Please Try Again.\n" +
+          "Error: " +
+          error.message
+      );
+      setShowUpdateModal(true);
     } finally {
       setIsGenerating(false);
     }
@@ -119,6 +132,14 @@ export default function CreateVideo() {
           <option>Vietnamese</option>
         </select>
       </div>
+
+      {isGenerating && <LoadingStatus />}
+
+      <UpdateStatusModal
+        showUpdateModal={showUpdateModal}
+        setShowUpdateModal={setShowUpdateModal}
+        updateMessage={updateMessage}
+      />
 
       {showModal && (
         <Modal
