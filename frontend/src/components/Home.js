@@ -1,12 +1,13 @@
 import "../styles/Home.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight, faClock } from "@fortawesome/free-solid-svg-icons";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, set } from "date-fns";
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { deleteVideo } from "../utils/deleteVideo";
 import UpdateStatusModal from "./UpdateStatusModal";
 import LoadingStatus from "./LoadingStatus";
+import ConfirmDeleteVideoModal from "./ConfirmDeleteVideoModal";
 
 const token =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkzMDkxNjB9.68rcsvQZwqaxQ6WEbkh28Q6AV_d99xRDHtEoZyFDi1M";
@@ -19,12 +20,22 @@ export default function Home() {
   const [updateMessage, setUpdateMessage] = useState("");
 
   const [showDeleteForId, setShowDeleteForId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const dotsRef = useRef(null);
+  const [videoIdToDelete, setVideoIdToDelete] = useState(null);
+
+  console.log("video Id to delete:", videoIdToDelete);
+
+  const dotsRefs = useRef({});
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dotsRef.current && !dotsRef.current.contains(event.target)) {
+      // Check if click is outside all dots
+      const isClickInsideAny = Object.values(dotsRefs.current).some(
+        (ref) => ref && ref.contains(event.target)
+      );
+
+      if (!isClickInsideAny) {
         setShowDeleteForId(null);
       }
     };
@@ -36,11 +47,7 @@ export default function Home() {
   }, []);
 
   const handleDelete = async (videoId) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this video?"
-    );
-    if (!confirmDelete) return;
-
+    setShowDeleteModal(false);
     setIsDeleting(true);
 
     const deleteMessage = await deleteVideo(videoId, token);
@@ -109,7 +116,7 @@ export default function Home() {
               key={video.id}
             >
               <Link
-                to={`preview-video/${video.id}`}
+                to={`/preview-video/${video.id}`}
                 className="card text-decoration-none"
               >
                 <img
@@ -130,39 +137,33 @@ export default function Home() {
                     </h5>
                   </div>
                   <div
-                    ref={dotsRef}
-                    className="dots d-flex align-items-center px-2"
+                    ref={
+                      (dotsRefs.current[video.id] = (el) => {
+                        dotsRefs.current[video.id] = el;
+                      })
+                    }
+                    className="container-dots d-flex align-items-center px-2"
                     onClick={(e) => {
                       e.preventDefault(); // prevent Link navigation
                       e.stopPropagation(); // stop event bubbling
+                      setVideoIdToDelete(video.id);
                       setShowDeleteForId(
                         showDeleteForId === video.id ? null : video.id
                       );
                     }}
                   >
-                    <div>⋮</div>
+                    <div className="dots">⋮</div>
 
                     {showDeleteForId === video.id && (
                       <div
-                        className="delete-text"
+                        className="delete-text show"
                         onClick={(e) => {
+                          console.log("dots clicked for video", video.id);
                           e.preventDefault();
                           e.stopPropagation();
-                          handleDelete(video.id);
+
+                          setShowDeleteModal(true);
                           setShowDeleteForId(null); // hide after delete
-                        }}
-                        style={{
-                          cursor: "pointer",
-                          padding: "4px 8px",
-                          backgroundColor: "#f44336",
-                          color: "white",
-                          borderRadius: "4px",
-                          position: "absolute",
-                          bottom: "100%", // position above the dots
-                          right: "50%", // start from right edge of dots
-                          marginLeft: "5px", // optional spacing
-                          userSelect: "none",
-                          zIndex: 10, // ensure it appears above other elements
                         }}
                       >
                         Delete
@@ -183,6 +184,16 @@ export default function Home() {
         setShowUpdateModal={setShowUpdateModal}
         updateMessage={updateMessage}
       />
+
+      {showDeleteModal && (
+        <ConfirmDeleteVideoModal
+          showDeleteModal={showDeleteModal}
+          setShowDeleteModal={setShowDeleteModal}
+          videoTitle={videos.find((v) => v.id === videoIdToDelete)?.topic || ""}
+          onConfirmDelete={() => handleDelete(videoIdToDelete)}
+          setVideoIdToDelete={setVideoIdToDelete}
+        />
+      )}
     </div>
   );
 }
