@@ -2,7 +2,7 @@ import "../styles/Home.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight, faClock } from "@fortawesome/free-solid-svg-icons";
 import { formatDistanceToNow } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { deleteVideo } from "../utils/deleteVideo";
 import UpdateStatusModal from "./UpdateStatusModal";
@@ -17,6 +17,23 @@ export default function Home() {
 
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateMessage, setUpdateMessage] = useState("");
+
+  const [showDeleteForId, setShowDeleteForId] = useState(null);
+
+  const dotsRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dotsRef.current && !dotsRef.current.contains(event.target)) {
+        setShowDeleteForId(null);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside, true);
+    return () => {
+      document.removeEventListener("click", handleClickOutside, true);
+    };
+  }, []);
 
   const handleDelete = async (videoId) => {
     const confirmDelete = window.confirm(
@@ -113,14 +130,44 @@ export default function Home() {
                     </h5>
                   </div>
                   <div
-                    className="dots"
+                    ref={dotsRef}
+                    className="dots d-flex align-items-center px-2"
                     onClick={(e) => {
                       e.preventDefault(); // prevent Link navigation
                       e.stopPropagation(); // stop event bubbling
-                      handleDelete(video.id);
+                      setShowDeleteForId(
+                        showDeleteForId === video.id ? null : video.id
+                      );
                     }}
                   >
-                    ⋮
+                    <div>⋮</div>
+
+                    {showDeleteForId === video.id && (
+                      <div
+                        className="delete-text"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleDelete(video.id);
+                          setShowDeleteForId(null); // hide after delete
+                        }}
+                        style={{
+                          cursor: "pointer",
+                          padding: "4px 8px",
+                          backgroundColor: "#f44336",
+                          color: "white",
+                          borderRadius: "4px",
+                          position: "absolute",
+                          bottom: "100%", // position above the dots
+                          right: "50%", // start from right edge of dots
+                          marginLeft: "5px", // optional spacing
+                          userSelect: "none",
+                          zIndex: 10, // ensure it appears above other elements
+                        }}
+                      >
+                        Delete
+                      </div>
+                    )}
                   </div>
                 </div>
               </Link>
