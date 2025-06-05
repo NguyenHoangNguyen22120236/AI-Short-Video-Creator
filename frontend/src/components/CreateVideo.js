@@ -133,7 +133,7 @@ export default function CreateVideo() {
         </select>
       </div>
 
-      {isGenerating && <LoadingStatus />}
+      {isGenerating && <LoadingStatus message='Generating'/>}
 
       <UpdateStatusModal
         showUpdateModal={showUpdateModal}

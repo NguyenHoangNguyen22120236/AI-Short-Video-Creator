@@ -25,8 +25,6 @@ export default function PreviewVideo() {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateMessage, setUpdateMessage] = useState("");
 
-  console.log('data:', data);
-
   // Fetch from backend if no passedData
   useEffect(() => {
     if (passedData) {
@@ -163,7 +161,7 @@ export default function PreviewVideo() {
         />
       )}
 
-      {isUpdating && <LoadingStatus />}
+      {isUpdating && <LoadingStatus message='Updating'/>}
 
       
         {isEditOpen && (

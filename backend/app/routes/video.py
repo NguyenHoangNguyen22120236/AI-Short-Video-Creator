@@ -119,3 +119,20 @@ async def get_all_videos_history(
         return JSONResponse(content={"detail": "No videos found"}, status_code=404)
     
     return JSONResponse(content=videos, status_code=status_code)
+
+
+@video_router.delete("/delete_video/{video_id}")
+async def delete_video(
+    video_id: int,
+    user_data: dict = Depends(verify_jwt_token),
+    db: AsyncSession = Depends(get_db)
+):
+    result, status_code = await video_controller.delete_video(
+        db=db,
+        video_id=video_id,
+    )
+    
+    if status_code == 404:
+        return JSONResponse(content={"detail": "Video not found"}, status_code=404)
+    
+    return JSONResponse(content=result, status_code=status_code)

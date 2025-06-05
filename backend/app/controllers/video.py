@@ -174,6 +174,36 @@ class VideoController:
             return dict(history_data), 200
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+        
+        
+    @staticmethod
+    async def delete_video(db: AsyncSession, video_id: int):
+        try:
+            video = await Video.delete(db, video_id)
+            if not video:
+                raise HTTPException(status_code=404, detail="Video not found")
+            
+            # delete video from Cloudinary
+            cloudinary_service = CloudinaryService()
+            cloudinary_service.delete_file(video.video)
+            
+            #delete audio and image files from cloudinary
+            for image_url in video.image_urls:
+                cloudinary_service.delete_file(image_url)
+                
+            for audio_url in video.audio_urls:
+                cloudinary_service.delete_file(audio_url)
+                
+            #delete thumbnail if exists
+            if video.thumbnail:
+                cloudinary_service.delete_file(video.thumbnail)
+            
+            return {"detail": "Video deleted successfully"}, 200
+        except NoResultFound:
+            raise HTTPException(status_code=404, detail="Video not found")
+        except Exception as e:
+            print(f"Error deleting video: {e}")
+            raise HTTPException(status_code=500, detail="Failed to delete video")
             
     
     

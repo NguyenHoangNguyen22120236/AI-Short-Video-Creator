@@ -4,11 +4,13 @@ import { faPlus, faClock } from "@fortawesome/free-solid-svg-icons";
 import { format, parseISO } from "date-fns";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import LoadingStatus from "./LoadingStatus";
 
 const token =   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkzMDkxNjB9.68rcsvQZwqaxQ6WEbkh28Q6AV_d99xRDHtEoZyFDi1M";
 
 export default function HistorySeeAll() {
   const [historyData, setHistoryData] = useState({});
+  const [loading, setLoading] = useState(true);
 
   // Fetch history data from the API
   useEffect(() => {
@@ -34,7 +36,7 @@ export default function HistorySeeAll() {
       } catch (error) {
         console.error("Failed to fetch video history:", error);
       } finally {
-        //setLoading(false);
+        setLoading(false);
       }
     };
 
@@ -77,6 +79,8 @@ export default function HistorySeeAll() {
           </div>
         ))}
       </div>
+
+      {loading && <LoadingStatus message="Loading history"/>}
     </div>
   );
 }

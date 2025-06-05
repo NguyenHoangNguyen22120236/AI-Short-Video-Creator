@@ -4,11 +4,37 @@ import { faArrowRight, faClock } from "@fortawesome/free-solid-svg-icons";
 import { formatDistanceToNow } from "date-fns";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { deleteVideo } from "../utils/deleteVideo";
+import UpdateStatusModal from "./UpdateStatusModal";
+import LoadingStatus from "./LoadingStatus";
 
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkzMDkxNjB9.68rcsvQZwqaxQ6WEbkh28Q6AV_d99xRDHtEoZyFDi1M'
+const token =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkzMDkxNjB9.68rcsvQZwqaxQ6WEbkh28Q6AV_d99xRDHtEoZyFDi1M";
 
 export default function Home() {
   const [videos, setVideos] = useState([]);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState("");
+
+  const handleDelete = async (videoId) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this video?"
+    );
+    if (!confirmDelete) return;
+
+    setIsDeleting(true);
+
+    const deleteMessage = await deleteVideo(videoId, token);
+    if (deleteMessage.success) {
+      setVideos(videos.filter((video) => video.id !== videoId));
+    }
+
+    setUpdateMessage(deleteMessage.message);
+    setShowUpdateModal(true);
+    setIsDeleting(false);
+  };
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -65,7 +91,10 @@ export default function Home() {
               className="col-lg-4 col-md-6 col-sm-6 col-8 p-lg-5 p-md-3 p-sm-3 p-2"
               key={video.id}
             >
-              <Link to={`preview-video/${video.id}`} className="card text-decoration-none">
+              <Link
+                to={`preview-video/${video.id}`}
+                className="card text-decoration-none"
+              >
                 <img
                   src={video.thumbnail}
                   alt={video.topic}
@@ -83,13 +112,30 @@ export default function Home() {
                       })}
                     </h5>
                   </div>
-                  <div className="dots">⋮</div>
+                  <div
+                    className="dots"
+                    onClick={(e) => {
+                      e.preventDefault(); // prevent Link navigation
+                      e.stopPropagation(); // stop event bubbling
+                      handleDelete(video.id);
+                    }}
+                  >
+                    ⋮
+                  </div>
                 </div>
               </Link>
             </div>
           ))}
         </div>
       </div>
+
+      {isDeleting && <LoadingStatus message="Deleting" />}
+
+      <UpdateStatusModal
+        showUpdateModal={showUpdateModal}
+        setShowUpdateModal={setShowUpdateModal}
+        updateMessage={updateMessage}
+      />
     </div>
   );
 }
