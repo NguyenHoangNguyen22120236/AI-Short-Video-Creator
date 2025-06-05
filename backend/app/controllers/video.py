@@ -1,4 +1,5 @@
 import asyncio
+from collections import defaultdict
 from services.subtitles import SubtitlesService
 from services.audio import AudioService
 from services.image import ImageService
@@ -65,7 +66,7 @@ class VideoController:
             video_data['subtitles'] = subtitles
             
             # Create video record in the database
-            await Video.create(db, user_id=user_id, video_data=video_data)
+            video_id = await Video.create(db, user_id=user_id, video_data=video_data)
             
             #delete files after video creation
             for i in range(len(image_urls)):
@@ -75,6 +76,8 @@ class VideoController:
                     os.remove(image_path)
                 if os.path.exists(audio_path):
                     os.remove(audio_path)
+                    
+            result['id'] = video_id
             
         except Exception as e:
             print(f"Error creating video: {e}")
@@ -138,5 +141,39 @@ class VideoController:
             print(f"Error fetching video: {e}")
             raise HTTPException(status_code=500, detail="Failed to fetch video")
         
+        
+    @staticmethod
+    async def get_videos_history(db: AsyncSession, user_id: int, number_of_videos: int):
+        try:
+            videos = await Video.get_videos_by_user(db, user_id, number_of_videos)
+            return videos, 200
+        except NoResultFound:
+            raise HTTPException(status_code=404, detail="No videos found for this user")
+        except Exception as e:
+            print(f"Error fetching videos history: {e}")
+            raise HTTPException(status_code=500, detail="Failed to fetch videos history")
+        
+        
+    @staticmethod
+    async def get_all_videos_history(db: AsyncSession, user_id: int):
+        try:
+            videos = await Video.get_all_videos_by_user(db, user_id)
+            
+            history_data = defaultdict(list)
+
+            for video in videos:
+                # Convert updated_at (datetime) to readable key, e.g., "Tue Jun 03 2025"
+                date_key = video.updated_at.strftime("%a %b %d %Y")
+                
+                history_data[date_key].append({
+                    "id": video.id,
+                    "topic": video.topic,
+                    "updated_at": video.updated_at.isoformat(),
+                })
+
+            return dict(history_data), 200
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+            
     
     

@@ -15,7 +15,7 @@ def build_drawtext_filter(subtitles, font_path=None, text_effect=None):
         enable_expr = f"enable='between(t,{start},{end})'"
         base = f"text='{text}':x=(w-text_w)/2:fontcolor=white:borderw=2:bordercolor=black"
         y_default = "y=h-100"
-        fontsize_default = "fontsize=17"
+        fontsize_default = "fontsize=16"
 
         if text_effect == "Fade":
             alpha_expr = (

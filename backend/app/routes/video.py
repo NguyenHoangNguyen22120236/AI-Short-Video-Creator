@@ -6,8 +6,7 @@ from pydantic import BaseModel
 from typing import Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils.database import get_db
-from utils.schemas import VideoSchema
-from fastapi import Request
+from utils.schemas import VideoSchema, VideoHistorySchema
 
 video_router = APIRouter()
 video_controller = VideoController()
@@ -40,7 +39,7 @@ class VideoUpdateRequest(BaseModel):
     
 
 @video_router.post("/create_video")
-async def create_video_no_subtitles(
+async def create_video(
     payload: VideoCreateRequest,
     user_data: dict = Depends(verify_jwt_token),
     db: AsyncSession = Depends(get_db)
@@ -74,13 +73,6 @@ async def update_video(
         stickers=stickers_dict_list
     )
     
-    #print('text effect: ', payload.text_effect)
-    #print('music: ', music_dict)
-    #print('stickers: ', stickers_dict_list)
-    
-    #result = 'no'
-    #status_code = 200  # Assuming the update was successful for this example
-    
     return JSONResponse(content=result, status_code=status_code)
 
 
@@ -99,18 +91,31 @@ async def get_video(
     if video.user_id != user_data.get("user_id"):
         return JSONResponse(content={"detail": "Not authorized"}, status_code=403)
     
-    return video# auto-converted to JSON by FastAPI
+    return video # auto-converted to JSON by FastAPI
 
 
-@video_router.get("/get_videos_history/{number_of_videos}")
+@video_router.get("/get_videos_history/{number_of_videos}", response_model=List[VideoHistorySchema])
 async def get_videos_history(
     number_of_videos: int,
     user_data: dict = Depends(verify_jwt_token),
     db: AsyncSession = Depends(get_db)
 ):
-    #videos, status_code = await video_controller.get_videos_history(quantity)
-    videos = {'videos': [{'video_id': 1, 'topic': 'Video 1', 'created_at': '2025-5-1', 'thumbnail_url': 'https://i.postimg.cc/zXgFtzZ5/Deep-Focus-Music-To-Improve-Concentration-12-Hours-of-Ambient-Study-Music-to-Concentrate-576-Yo.png'}, 
-                         {'video_id': 2, 'topic': 'Video 2', 'created_at': '2025-5-5', 'thumbnail_url': 'https://i.postimg.cc/zXgFtzZ5/Deep-Focus-Music-To-Improve-Concentration-12-Hours-of-Ambient-Study-Music-to-Concentrate-576-Yo.png'}, 
-                         {'video_id': 3, 'topic': 'Video 3', 'created_at': '2025-5-10', 'thumbnail_url': 'https://i.postimg.cc/zXgFtzZ5/Deep-Focus-Music-To-Improve-Concentration-12-Hours-of-Ambient-Study-Music-to-Concentrate-576-Yo.png'}]}
-    status_code = 200
+    videos, status_code = await video_controller.get_videos_history(
+        db=db,
+        user_id=user_data.get("user_id"),
+        number_of_videos=number_of_videos
+    )
+    
+    return videos # auto-converted to JSON by FastAPI
+
+
+@video_router.get("/get_all_videos_history")
+async def get_all_videos_history(
+    user_data: dict = Depends(verify_jwt_token),
+    db: AsyncSession = Depends(get_db)
+):
+    videos, status_code = await video_controller.get_all_videos_history(db=db, user_id=user_data.get("user_id"))
+    if not videos:
+        return JSONResponse(content={"detail": "No videos found"}, status_code=404)
+    
     return JSONResponse(content=videos, status_code=status_code)

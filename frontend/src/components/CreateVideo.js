@@ -7,7 +7,7 @@ import UpdateStatusModal from "./UpdateStatusModal";
 
 export default function CreateVideo() {
   const [topic, setTopic] = useState("");
-  const [language, setLanguage] = useState("English");
+  const [language, setLanguage] = useState('en-US'); // Default to English
   const [showModal, setShowModal] = useState(false);
   const [trendyTopics, setTrendyTopics] = useState([]);
   const [location, setLocation] = useState("US");
@@ -55,7 +55,7 @@ export default function CreateVideo() {
       //const token = localStorage.getItem('access_token');
 
       const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkxMzQ1OTh9.qWNxqwpozM-xds2ClF4bE27-v1y4WzEXmDMpbQY61hA"; // Replace with your actual token logic
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkzMDkxNjB9.68rcsvQZwqaxQ6WEbkh28Q6AV_d99xRDHtEoZyFDi1M"; // Replace with your actual token logic
 
       const response = await fetch(
         "http://127.0.0.1:8000/api/video/create_video",
@@ -76,7 +76,7 @@ export default function CreateVideo() {
 
       if (data) {
         // Navigate to preview page and pass the video URL
-        navigate("/preview-video", { state: { data: data } });
+        navigate(`/preview-video/${data.id}`, { state: { data: data } });
         //console.log('Video generated successfully:', data);
       } else {
         setUpdateMessage("Failed to generate video. Please try again.");
@@ -128,8 +128,8 @@ export default function CreateVideo() {
           value={language}
           onChange={(e) => setLanguage(e.target.value)}
         >
-          <option>English</option>
-          <option>Vietnamese</option>
+          <option value={'en-US'}>English</option>
+          <option value={'vi-VN'}>Vietnamese</option>
         </select>
       </div>
 

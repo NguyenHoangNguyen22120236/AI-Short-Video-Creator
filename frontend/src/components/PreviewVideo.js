@@ -4,38 +4,10 @@ import EditModal from "./EditModal";
 import { useLocation, useParams } from "react-router-dom";
 import UpdateStatusModal from "./UpdateStatusModal";
 import LoadingStatus from "./LoadingStatus";
+import { ThumbnailContext } from '../context/ThumbnailContext';
 
 const token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkxMzQ1OTh9.qWNxqwpozM-xds2ClF4bE27-v1y4WzEXmDMpbQY61hA";
-const data = {
-  id: 1,
-  video:
-    "https://res.cloudinary.com/dfa9owyll/video/upload/v1748754976/engtqh8xj9vi4qctfpsu.mp4",
-  text_effect: null,
-  music: {
-    id: 1,
-    title: "Funny tango dramatic music",
-    url: "https://res.cloudinary.com/dfa9owyll/raw/upload/v1748671858/d7emufgt2vj3qujxpahl.mp3",
-  },
-  stickers: [
-    {
-      id: 1,
-      url: "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673384/qf8ylj8gpharbdurvcc8.png",
-      x: 100,
-      y: 50,
-      width: 64,
-      height: 64,
-    },
-    {
-      id: 2,
-      url: "https://res.cloudinary.com/dfa9owyll/image/upload/v1748673385/jldqihwdmre62kyc1ook.png",
-      x: 300,
-      y: 150,
-      width: 48,
-      height: 48,
-    },
-  ],
-};
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkzMDkxNjB9.68rcsvQZwqaxQ6WEbkh28Q6AV_d99xRDHtEoZyFDi1M";
 
 export default function PreviewVideo() {
   const videoRef = useRef(null);
@@ -52,6 +24,8 @@ export default function PreviewVideo() {
 
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateMessage, setUpdateMessage] = useState("");
+
+  console.log('data:', data);
 
   // Fetch from backend if no passedData
   useEffect(() => {
@@ -191,20 +165,24 @@ export default function PreviewVideo() {
 
       {isUpdating && <LoadingStatus />}
 
-      {isEditOpen && (
-        <EditModal
-          currentData={{
-            selectedEffect,
-            currentMusic,
-            selectedStickers,
-          }}
-          onClose={() => setIsEditOpen(false)}
-          onApplyTextEffect={handleApplyTextEffect}
-          onApplyMusic={handleApplyMusic}
-          onApplyStickers={handleApplyStickers}
-          onUpdateData={handleUpdateData}
-        />
-      )}
+      
+        {isEditOpen && (
+          <ThumbnailContext.Provider value={data.thumbnail}>
+            <EditModal
+              currentData={{
+                selectedEffect,
+                currentMusic,
+                selectedStickers,
+              }}
+              onClose={() => setIsEditOpen(false)}
+              onApplyTextEffect={handleApplyTextEffect}
+              onApplyMusic={handleApplyMusic}
+              onApplyStickers={handleApplyStickers}
+              onUpdateData={handleUpdateData}
+            />
+          </ThumbnailContext.Provider>
+        )}
+      
 
       <UpdateStatusModal
         showUpdateModal={showUpdateModal}

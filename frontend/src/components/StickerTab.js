@@ -1,12 +1,17 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Rnd } from "react-rnd";
 import "../styles/StickerTab.css";
+import { ThumbnailContext } from "../context/ThumbnailContext";
 
 export default function StickerTab({
   stockStickers,
   selectedStickers,
   setSelectedStickers,
 }) {
+
+  const thumbnail = useContext(ThumbnailContext);
+  console.log("Thumbnail in StickerTab:", thumbnail);
+
   //const [stickers, setStickers] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
 
@@ -57,7 +62,7 @@ export default function StickerTab({
           position: "relative",
           width: 360,
           height: 640,
-          backgroundImage: `url("/video-placeholder.png")`, // replace with your video frame
+          backgroundImage: `url(${thumbnail})`, // replace with your video frame
           backgroundSize: "cover",
           backgroundPosition: "center",
           border: "1px solid #ccc",

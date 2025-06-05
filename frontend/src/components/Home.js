@@ -1,36 +1,43 @@
 import "../styles/Home.css";
-import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight, faClock } from "@fortawesome/free-solid-svg-icons";
 import { formatDistanceToNow } from "date-fns";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkzMDkxNjB9.68rcsvQZwqaxQ6WEbkh28Q6AV_d99xRDHtEoZyFDi1M'
+
 export default function Home() {
-  const navigate = useNavigate();
   const [videos, setVideos] = useState([]);
 
   useEffect(() => {
     const fetchVideos = async () => {
       try {
+        //const token = localStorage.getItem("token"); // or get it from context
         const response = await fetch(
-          "http://127.0.0.1:8000/api/video/get_videos_history"
+          `http://127.0.0.1:8000/api/video/get_videos_history/${3}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
+
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
+
         const data = await response.json();
-        setVideos(data.videos);
+        setVideos(data);
       } catch (error) {
         console.error("Error fetching history:", error);
       }
     };
+
     fetchVideos();
   }, []);
-
-  const handleCreateClick = () => {
-    navigate("/create"); // Navigate to the AI video creation page
-  };
 
   return (
     <div className="container p-1">
@@ -52,15 +59,15 @@ export default function Home() {
             See all
           </a>
         </div>
-        <div className="d-flex flex-wrap justify-content-between align-items-center p-0">
+        <div className="d-flex flex-wrap justify-content-center align-items-center p-0">
           {videos.map((video) => (
             <div
-              className="col-lg-4 col-md-6 col-sm-6 col-6 p-lg-5 p-md-3 p-sm-3 p-2"
-              key={video.video_id}
+              className="col-lg-4 col-md-6 col-sm-6 col-8 p-lg-5 p-md-3 p-sm-3 p-2"
+              key={video.id}
             >
-              <div className="card">
+              <Link to={`preview-video/${video.id}`} className="card text-decoration-none">
                 <img
-                  src={video.thumbnail_url}
+                  src={video.thumbnail}
                   alt={video.topic}
                   className="thumbnail"
                 />
@@ -78,7 +85,7 @@ export default function Home() {
                   </div>
                   <div className="dots">⋮</div>
                 </div>
-              </div>
+              </Link>
             </div>
           ))}
         </div>

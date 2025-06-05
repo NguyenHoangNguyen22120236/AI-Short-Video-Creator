@@ -26,7 +26,7 @@ class RunwareAI:
         
         return image_url'''
         
-        url = f"https://image.pollinations.ai/prompt/{prompt}?width=384&height=512"
+        url = f"https://image.pollinations.ai/prompt/{prompt}?width=360&height=640"
         response = requests.get(url)
 
     

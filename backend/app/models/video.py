@@ -35,7 +35,7 @@ class Video(Base):
         try:
             await db.commit()
             await db.refresh(video)
-            return video
+            return video.id
         except IntegrityError as e:
             await db.rollback()
             print(f"IntegrityError: {e.orig}")
@@ -83,3 +83,26 @@ class Video(Base):
         await db.delete(video)
         await db.commit()
         return video
+    
+    
+    @classmethod
+    async def get_videos_by_user(cls, db: AsyncSession, user_id: int, limit: int):
+        """Fetch videos created by a specific user, ordered by updated_at time."""
+        query = select(cls).filter_by(user_id=user_id).order_by(cls.updated_at.desc()).limit(limit)
+
+        result = await db.execute(query)
+        videos = result.scalars().all()
+        return videos
+    
+    
+    @classmethod
+    async def get_all_videos_by_user(cls, db: AsyncSession, user_id: int):
+        """Fetch all videos created by a specific user."""
+        query = select(cls).filter_by(user_id=user_id).order_by(cls.updated_at.desc())
+
+        result = await db.execute(query)
+        videos = result.scalars().all()
+        return videos
+    
+    
+    
