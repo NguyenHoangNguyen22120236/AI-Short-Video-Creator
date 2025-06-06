@@ -7,7 +7,7 @@ import os
 # Constants
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 3600  
+ACCESS_TOKEN_EXPIRE_MINUTES = 1  
 security = HTTPBearer()
 
 # Create access token

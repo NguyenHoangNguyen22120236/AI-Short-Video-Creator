@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../styles/AuthForm.css"; // Import your CSS
+import LoginForm from "./LoginForm";
 
 export default function AuthForm() {
   const [activeForm, setActiveForm] = useState("login");
@@ -7,7 +8,9 @@ export default function AuthForm() {
   return (
     <div className="wrapper">
       <div className="title-text">
-        <div className={`title ${activeForm}`}>{activeForm === "login" ? "Login Form" : "Signup Form"}</div>
+        <div className={`title ${activeForm}`}>
+          {activeForm === "login" ? "Login" : "Signup"}
+        </div>
       </div>
       <div className="form-container">
         <div className="slide-controls">
@@ -25,33 +28,22 @@ export default function AuthForm() {
             checked={activeForm === "signup"}
             onChange={() => setActiveForm("signup")}
           />
-          <label htmlFor="login" className="slide login">Login</label>
-          <label htmlFor="signup" className="slide signup">Signup</label>
+          <label htmlFor="login" className="slide login">
+            Login
+          </label>
+          <label htmlFor="signup" className="slide signup">
+            Signup
+          </label>
           <div className="slider-tab"></div>
         </div>
 
         <div className="form-inner">
-          <form className={`login ${activeForm === "login" ? "show" : ""}`} onSubmit={(e) => e.preventDefault()}>
-            <div className="field">
-              <input type="text" placeholder="Email Address" required />
-            </div>
-            <div className="field">
-              <input type="password" placeholder="Password" required />
-            </div>
-            <div className="pass-link">
-              <a href="#">Forgot password?</a>
-            </div>
-            <div className="field btn">
-              <div className="btn-layer"></div>
-              <input type="submit" value="Login" />
-            </div>
-            <div className="signup-link">
-              Not a member?{" "}
-              <a href="#" onClick={() => setActiveForm("signup")}>Signup now</a>
-            </div>
-          </form>
+          <LoginForm setActiveForm={setActiveForm} />
 
-          <form className={`signup ${activeForm === "signup" ? "show" : ""}`} onSubmit={(e) => e.preventDefault()}>
+          <form
+            className={`signup ${activeForm === "signup" ? "show" : ""}`}
+            onSubmit={(e) => e.preventDefault()}
+          >
             <div className="field">
               <input type="text" placeholder="Email Address" required />
             </div>

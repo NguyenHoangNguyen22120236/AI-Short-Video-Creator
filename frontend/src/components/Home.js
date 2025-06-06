@@ -1,17 +1,17 @@
 import "../styles/Home.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight, faClock } from "@fortawesome/free-solid-svg-icons";
-import { formatDistanceToNow} from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import UpdateStatusModal from "./UpdateStatusModal";
 import LoadingStatus from "./LoadingStatus";
 import DotsSetting from "./DotsSetting";
-
-const token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkzMDkxNjB9.68rcsvQZwqaxQ6WEbkh28Q6AV_d99xRDHtEoZyFDi1M";
+import { Navigate } from "react-router-dom";
+import { isTokenValid } from "../utils/auth";
 
 export default function Home() {
+  // State variables
   const [videos, setVideos] = useState([]);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -20,10 +20,12 @@ export default function Home() {
 
   const dotsRefs = useRef({});
 
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
     const fetchVideos = async () => {
+      if (!token || !isTokenValid(token)) return;
       try {
-        //const token = localStorage.getItem("token"); // or get it from context
         const response = await fetch(
           `http://127.0.0.1:8000/api/video/get_videos_history/${3}`,
           {
@@ -47,13 +49,20 @@ export default function Home() {
     };
 
     fetchVideos();
-  }, []);
+  }, [token]);
+
+  if (!token || !isTokenValid(token)) {
+    return <Navigate to="/login-signup" />;
+  }
 
   return (
     <div className="container p-1">
       <div className="row p-3">
         <div>
-          <Link to="/create-video" className="create-button col-lg-4 col-md-6 col-sm-10 col-10 d-flex justify-content-between align-items-center text-decoration-none">
+          <Link
+            to="/create-video"
+            className="create-button col-lg-4 col-md-6 col-sm-10 col-10 d-flex justify-content-between align-items-center text-decoration-none"
+          >
             <div className=" d-flex flex-column justify-content-around align-items-center">
               <span className="main-text">Create AI Video</span>
               <span className="extra-text">Start from scratch</span>
@@ -96,8 +105,8 @@ export default function Home() {
                       })}
                     </h5>
                   </div>
-                  
-                  <DotsSetting 
+
+                  <DotsSetting
                     videoId={video.id}
                     dotsRefs={dotsRefs}
                     videos={videos}
