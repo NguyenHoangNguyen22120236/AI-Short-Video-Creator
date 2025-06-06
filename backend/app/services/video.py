@@ -9,10 +9,11 @@ from utils.url import is_url
 
 
 class VideoService:
-    def __init__(self, image_urls, audio_urls, subtitles, email):
+    def __init__(self, image_urls, audio_urls, subtitles, topic ,email):
         self.image_urls = image_urls
         self.audio_urls = audio_urls
         self.subtitles = subtitles
+        self.topic = topic
         self.email = email
             
             
@@ -287,6 +288,7 @@ class VideoService:
 
         return {
             "video": video_url,
+            "topic": self.topic,
             "thumbnail": thumbnail_url,
             "music": music,
             "text_effect": text_effect,

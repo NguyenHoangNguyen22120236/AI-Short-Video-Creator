@@ -33,6 +33,7 @@ class VideoController:
                 image_urls=image_urls,
                 audio_urls=audio_urls,
                 subtitles=subtitles,
+                topic=topic,
                 email=email
             )
             result = await video_service.create_video()
@@ -62,7 +63,6 @@ class VideoController:
             # Add results to video_data
             video_data['image_urls'] = image_results
             video_data['audio_urls'] = audio_results
-            video_data['topic'] = topic
             video_data['subtitles'] = subtitles
             
             # Create video record in the database

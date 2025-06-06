@@ -5,6 +5,7 @@ from datetime import datetime
 class VideoSchema(BaseModel):
     id: int
     video: str
+    topic: str
     text_effect: Optional[str]
     music: Optional[dict]
     stickers: Optional[List[dict]]

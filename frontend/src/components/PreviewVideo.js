@@ -4,7 +4,7 @@ import EditModal from "./EditModal";
 import { useLocation, useParams } from "react-router-dom";
 import UpdateStatusModal from "./UpdateStatusModal";
 import LoadingStatus from "./LoadingStatus";
-import { ThumbnailContext } from '../context/ThumbnailContext';
+import { ThumbnailContext } from "../context/ThumbnailContext";
 
 const token =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkzMDkxNjB9.68rcsvQZwqaxQ6WEbkh28Q6AV_d99xRDHtEoZyFDi1M";
@@ -136,8 +136,35 @@ export default function PreviewVideo() {
     setIsEditOpen(true);
   };
 
+  const handleDownloadVideo = async () => {
+    try {
+      const videoUrl = videoRef.current?.currentSrc || videoRef.current?.src;
+      if (!videoUrl) {
+        console.error("Video source not found");
+        return;
+      }
+
+      const response = await fetch(videoUrl, { mode: "cors" });
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const fileName = `${sanitizeFileName(data.topic)}-video.mp4`;
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Download failed:", error);
+    }
+  };
+
+  const sanitizeFileName = (name) => name.replace(/[\\/:*?"<>|]/g, "");
+
   return (
-    <div className="d-flex flex-column align-items-center justify-content-center text-white">
+    <div className="d-flex flex-column align-items-center justify-content-center text-white py-5">
       <div className="video-container">
         <video
           ref={videoRef}
@@ -149,9 +176,14 @@ export default function PreviewVideo() {
         />
       </div>
 
-      <button className="edit-button p2" onClick={handleOpenEditModal}>
-        Edit
-      </button>
+      <div className="video-info">
+        <button className="btn fs-5" onClick={handleOpenEditModal}>
+          Edit
+        </button>
+        <button className="btn btn-primary" onClick={handleDownloadVideo}>
+          Download
+        </button>
+      </div>
 
       {currentMusic && (
         <audio
@@ -161,26 +193,24 @@ export default function PreviewVideo() {
         />
       )}
 
-      {isUpdating && <LoadingStatus message='Updating'/>}
+      {isUpdating && <LoadingStatus message="Updating" />}
 
-      
-        {isEditOpen && (
-          <ThumbnailContext.Provider value={data.thumbnail}>
-            <EditModal
-              currentData={{
-                selectedEffect,
-                currentMusic,
-                selectedStickers,
-              }}
-              onClose={() => setIsEditOpen(false)}
-              onApplyTextEffect={handleApplyTextEffect}
-              onApplyMusic={handleApplyMusic}
-              onApplyStickers={handleApplyStickers}
-              onUpdateData={handleUpdateData}
-            />
-          </ThumbnailContext.Provider>
-        )}
-      
+      {isEditOpen && (
+        <ThumbnailContext.Provider value={data.thumbnail}>
+          <EditModal
+            currentData={{
+              selectedEffect,
+              currentMusic,
+              selectedStickers,
+            }}
+            onClose={() => setIsEditOpen(false)}
+            onApplyTextEffect={handleApplyTextEffect}
+            onApplyMusic={handleApplyMusic}
+            onApplyStickers={handleApplyStickers}
+            onUpdateData={handleUpdateData}
+          />
+        </ThumbnailContext.Provider>
+      )}
 
       <UpdateStatusModal
         showUpdateModal={showUpdateModal}

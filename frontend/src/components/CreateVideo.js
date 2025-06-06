@@ -72,6 +72,10 @@ export default function CreateVideo() {
         }
       );
 
+      if (!response.ok) {
+        throw new Error("Failed to generate video");
+      }
+
       const data = await response.json();
 
       if (data) {

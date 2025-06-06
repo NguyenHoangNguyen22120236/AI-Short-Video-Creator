@@ -3,14 +3,23 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faClock } from "@fortawesome/free-solid-svg-icons";
 import { format, parseISO } from "date-fns";
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import LoadingStatus from "./LoadingStatus";
+import UpdateStatusModal from "./UpdateStatusModal";
+import DotsSetting from "./DotsSetting";
 
-const token =   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkzMDkxNjB9.68rcsvQZwqaxQ6WEbkh28Q6AV_d99xRDHtEoZyFDi1M";
+const token =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkzMDkxNjB9.68rcsvQZwqaxQ6WEbkh28Q6AV_d99xRDHtEoZyFDi1M";
 
 export default function HistorySeeAll() {
   const [historyData, setHistoryData] = useState({});
   const [loading, setLoading] = useState(true);
+
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState("");
+
+  const dotsRefs = useRef({});
 
   // Fetch history data from the API
   useEffect(() => {
@@ -22,7 +31,7 @@ export default function HistorySeeAll() {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`
+              Authorization: `Bearer ${token}`,
             },
           }
         );
@@ -64,23 +73,40 @@ export default function HistorySeeAll() {
                 key={video.id}
                 className="history-card d-flex justify-content-between align-items-center p-3 text-decoration-none"
               >
-                <div className="d-flex align-items-center flex-column">
+                <div className="d-flex lign-items-start flex-column">
                   <div className="d-flex gap-3 align-items-center fs-5">
                     <FontAwesomeIcon icon={faClock} />
                     <h4>{video.topic}</h4>
                   </div>
-                  <p className="m-0">
+                  <div className="m-0">
                     Updated at: {format(parseISO(video.updated_at), "HH:mm")}
-                  </p>
+                  </div>
                 </div>
-                <div className="dots">⋮</div>
+                <DotsSetting
+                  videoId={video.id}
+                  dotsRefs={dotsRefs}
+                  videos={historyData}
+                  setVideos={setHistoryData}
+                  setShowUpdateModal={setShowUpdateModal}
+                  setUpdateMessage={setUpdateMessage}
+                  setIsDeleting={setIsDeleting}
+                  videoTitle={video.topic}
+                />
               </Link>
             ))}
           </div>
         ))}
       </div>
 
-      {loading && <LoadingStatus message="Loading history"/>}
+      {loading && <LoadingStatus message="Loading history" />}
+
+      {isDeleting && <LoadingStatus message="Deleting" />}
+      
+            <UpdateStatusModal
+              showUpdateModal={showUpdateModal}
+              setShowUpdateModal={setShowUpdateModal}
+              updateMessage={updateMessage}
+            />
     </div>
   );
 }
