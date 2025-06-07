@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import validator from "validator";
+import { initializeGoogleLogin } from "../utils/googleAuth";
 
 export default function LoginForm({ setActiveForm }) {
   const [email, setEmail] = useState("");
@@ -9,6 +10,38 @@ export default function LoginForm({ setActiveForm }) {
   const [errorEmail, setErrorEmail] = useState("");
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    initializeGoogleLogin({
+      clientId: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+      callback: handleGoogleResponse,
+    });
+  }, []);
+
+  const handleGoogleResponse = async (response) => {
+    const idToken = response.credential;
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/user/google-login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id_token: idToken }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Login failed");
+      }
+
+      const data = await response.json();
+      localStorage.setItem("token", data.access_token);
+      navigate("/"); // Redirect to home page
+    } catch (err) {
+      console.error(err);
+      setError("Google login failed. Please try again.");
+    }
+  };
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
@@ -31,7 +64,7 @@ export default function LoginForm({ setActiveForm }) {
     setError("");
 
     if (!validator.isEmail(email)) {
-      return
+      return;
     }
 
     try {
@@ -49,7 +82,6 @@ export default function LoginForm({ setActiveForm }) {
 
       const data = await response.json();
       localStorage.setItem("token", data.access_token); // Save token
-      console.log("Login success:", data);
       navigate("/"); // Redirect to home page
     } catch (err) {
       console.error(err);
@@ -59,6 +91,9 @@ export default function LoginForm({ setActiveForm }) {
 
   return (
     <form className="login" onSubmit={handleLogin}>
+      <div id="google-signin-btn"></div>
+      <p className="text">or use your account</p>
+
       <div className="field">
         <input
           type="text"
@@ -81,6 +116,7 @@ export default function LoginForm({ setActiveForm }) {
       <div className="pass-link">
         <a href="#">Forgot password?</a>
       </div>
+
       <div className="field btn">
         <div className="btn-layer"></div>
         <input type="submit" value="Login" />

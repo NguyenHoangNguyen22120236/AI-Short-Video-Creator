@@ -31,3 +31,12 @@ async def signup_route(credentials: SignupRequest, db: AsyncSession = Depends(ge
     }
     user = await UserController.create_user(db=db, **user_data)
     return JSONResponse(content={"user_id": user['user_id']}, status_code=201)
+
+
+@user_router.post("/google-login")
+async def google_login_route(
+    data: dict,
+    db: AsyncSession = Depends(get_db)
+):
+    return await UserController.google_login(db=db, token=data.get("id_token"))
+    
