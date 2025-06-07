@@ -9,6 +9,7 @@ export default function MusicCard({
   isPlaying,
   onPlayToggle,
   handleReplaceMusic,
+  handleDeleteCurrentMusic,
 }) {
   const howlerRef = useRef(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -109,6 +110,15 @@ export default function MusicCard({
           className="replace-placeholder ms-3"
           style={{ width: "80px" }}
         ></div>
+      )}
+
+      {handleDeleteCurrentMusic && (
+        <button
+          className="btn btn-outline-danger btn-sm ms-3"
+          onClick={handleDeleteCurrentMusic}
+        >
+          Delete
+        </button>
       )}
     </div>
   );

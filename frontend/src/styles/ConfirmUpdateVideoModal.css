@@ -1,0 +1,50 @@
+.custom-modal .modal-content {
+  background-color: #f9fafb; /* Light background */
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.custom-modal .modal-header {
+  background-color: #4f46e5; /* Indigo */
+  color: white;
+  border-bottom: none;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
+.custom-modal .modal-title {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.custom-modal .modal-body {
+  font-size: 1.4rem;
+  color: #ffffff;
+}
+
+.custom-modal .btn {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #aaa;
+  background: transparent;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s ease;
+  width: 20%;
+}
+
+.custom-modal .btn:hover {
+  background: #333;
+}
+
+.custom-modal .btn-primary {
+  background-color: #a259ff;
+  border: none;
+  font-weight: bold;
+}
+
+.custom-modal .btn-primary:hover {
+  background-color: #8f3dff;
+}

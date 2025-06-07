@@ -39,6 +39,7 @@ export default function MusicTab({
             isPlaying={playingCurrentMusicId === currentMusic.id}
             onPlayToggle={handlePlayCurrentMusicToggle}
             handleReplaceMusic={null}
+            handleDeleteCurrentMusic={() => setCurrentMusic(null)}
           />
         ) : (
           <span>No music selected</span>
@@ -60,6 +61,7 @@ export default function MusicTab({
                     isPlaying={playingStockMusicId === music.id}
                     onPlayToggle={handlePlayStockMusicToggle}
                     handleReplaceMusic={() => setCurrentMusic(music)}
+                    handleDeleteCurrentMusic={null}
                   />
                 </div>
               )

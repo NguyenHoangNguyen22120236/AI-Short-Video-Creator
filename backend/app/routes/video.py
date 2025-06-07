@@ -45,19 +45,14 @@ async def create_video(
     user_data: dict = Depends(verify_jwt_token),
     db: AsyncSession = Depends(get_db)
 ):
-    '''result, status_code = await video_controller.create_video(
+    result, status_code = await video_controller.create_video(
         db=db,
         topic=payload.topic,
         email=user_data.get("sub"),
         language_code=payload.language,
         user_id=user_data.get("user_id")
     )
-    return JSONResponse(content=result, status_code=status_code)'''
-    
-    print('email:', user_data.get("sub"))
-    
-    return JSONResponse(
-        content={"message": "Video creation endpoint is not implemented yet."})
+    return JSONResponse(content=result, status_code=status_code)
 
 
 @video_router.put("/update_video/{video_id}")

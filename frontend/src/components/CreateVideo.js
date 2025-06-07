@@ -62,11 +62,6 @@ export default function CreateVideo() {
     setIsGenerating(true);
 
     try {
-      //const token = localStorage.getItem('access_token');
-
-      const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkzMDkxNjB9.68rcsvQZwqaxQ6WEbkh28Q6AV_d99xRDHtEoZyFDi1M"; // Replace with your actual token logic
-
       const response = await fetch(
         "http://127.0.0.1:8000/api/video/create_video",
         {

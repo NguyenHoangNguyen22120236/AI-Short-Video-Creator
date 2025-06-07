@@ -208,6 +208,7 @@ export default function PreviewVideo() {
         <ThumbnailContext.Provider value={data.thumbnail}>
           <EditModal
             currentData={{
+              topic: data.topic,
               selectedEffect,
               currentMusic,
               selectedStickers,
