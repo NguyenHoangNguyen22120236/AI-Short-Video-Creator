@@ -26,3 +26,19 @@ class UserController:
             "user_id": user.id
         })
         return {"access_token": token, "token_type": "bearer"}
+    
+    
+    @staticmethod
+    async def create_user(db: AsyncSession, email: str, password: str, name: str):
+        hashed_password = hash_password(password)
+        user_data = {
+            "email": email,
+            "hashed_password": hashed_password,
+            "username": name,
+            "auth_provider": "local" 
+        }
+        user = await User.create(db, **user_data)
+        if not user:
+            raise HTTPException(status_code=400, detail="User already exists")
+        return {"user_id": user.id}
+        
