@@ -87,7 +87,7 @@ class VideoController:
     
     
     @staticmethod
-    async def update_video(db: AsyncSession, email: str, video_id: int, text_effect: str=None, music: str=None, stickers: str=None):
+    async def update_video(db: AsyncSession, topic: str, email: str, video_id: int, text_effect: str=None, music: str=None, stickers: str=None):
         video = await Video.get_by_id(db, video_id)
         
         if not video:
@@ -99,6 +99,7 @@ class VideoController:
                 image_urls=video.image_urls,
                 audio_urls=video.audio_urls,
                 subtitles=video.subtitles,
+                topic=topic,
                 email= email
             )
             

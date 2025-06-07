@@ -36,6 +36,7 @@ class VideoUpdateRequest(BaseModel):
     text_effect: Optional[str]
     music: Optional[Music]
     stickers: Optional[List[Sticker]]
+    topic: Optional[str]
     
 
 @video_router.post("/create_video")
@@ -44,14 +45,19 @@ async def create_video(
     user_data: dict = Depends(verify_jwt_token),
     db: AsyncSession = Depends(get_db)
 ):
-    result, status_code = await video_controller.create_video(
+    '''result, status_code = await video_controller.create_video(
         db=db,
         topic=payload.topic,
         email=user_data.get("sub"),
         language_code=payload.language,
         user_id=user_data.get("user_id")
     )
-    return JSONResponse(content=result, status_code=status_code)
+    return JSONResponse(content=result, status_code=status_code)'''
+    
+    print('email:', user_data.get("sub"))
+    
+    return JSONResponse(
+        content={"message": "Video creation endpoint is not implemented yet."})
 
 
 @video_router.put("/update_video/{video_id}")
@@ -61,12 +67,14 @@ async def update_video(
     user_data: dict = Depends(verify_jwt_token),
     db: AsyncSession = Depends(get_db)
 ):
+    print('payload:', payload)
     music_dict = payload.music.dict() if payload.music else None
     stickers_dict_list = [sticker.dict() for sticker in payload.stickers] if payload.stickers else []
-
+    
     result, status_code = await video_controller.update_video(
         db=db,
         email=user_data.get("sub"),
+        topic=payload.topic,
         video_id=video_id,
         text_effect=payload.text_effect,
         music=music_dict,

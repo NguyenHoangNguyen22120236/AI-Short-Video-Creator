@@ -86,6 +86,7 @@ export default function PreviewVideo() {
     setIsUpdating(true);
 
     const newData = {
+      topic: data.topic,
       text_effect: selectedEffect,
       music: currentMusic,
       stickers: selectedStickers,

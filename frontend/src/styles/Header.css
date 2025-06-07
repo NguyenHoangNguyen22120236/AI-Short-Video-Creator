@@ -17,10 +17,37 @@
   overflow: hidden;        
   border: 2px solid #ccc;  
   background-color: #FFFFFF;
+  cursor: pointer;
 }
 
 .user img {
   width: 70%;
   height: 70%;
   object-fit: cover;      
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.user:hover img {
+    transform: scale(1.05);
+}
+
+.show-logout {
+  top: 120%;
+  right: 0;
+  z-index: 9999;
+  white-space: nowrap;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+  transform: translateY(-10px); /* start slightly up */
+}
+
+.show-logout.visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0); /* slide down into place */
 }
