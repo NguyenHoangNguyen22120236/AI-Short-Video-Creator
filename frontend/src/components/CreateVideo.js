@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import Modal from "react-bootstrap/Modal";
 import LoadingStatus from "./LoadingStatus";
 import UpdateStatusModal from "./UpdateStatusModal";
+import { isTokenValid } from "../utils/auth";
+import { Navigate } from "react-router-dom";
 
 export default function CreateVideo() {
   const [topic, setTopic] = useState("");
@@ -18,7 +20,11 @@ export default function CreateVideo() {
 
   const navigate = useNavigate();
 
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
+    if (!token || !isTokenValid(token)) return;
+
     const fetchTrendyTopics = async () => {
       setTrendyTopics([]);
       try {
@@ -36,6 +42,10 @@ export default function CreateVideo() {
     };
     fetchTrendyTopics();
   }, [location]);
+
+  if (!token || !isTokenValid(token)) {
+    return <Navigate to="/authentication" />;
+  }
 
   const handleTopicClick = (selected) => {
     setTopic(selected);

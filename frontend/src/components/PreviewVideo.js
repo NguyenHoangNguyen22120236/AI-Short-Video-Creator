@@ -5,9 +5,9 @@ import { useLocation, useParams } from "react-router-dom";
 import UpdateStatusModal from "./UpdateStatusModal";
 import LoadingStatus from "./LoadingStatus";
 import { ThumbnailContext } from "../context/ThumbnailContext";
+import { isTokenValid } from "../utils/auth";
+import { Navigate } from "react-router-dom";
 
-const token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkzMDkxNjB9.68rcsvQZwqaxQ6WEbkh28Q6AV_d99xRDHtEoZyFDi1M";
 
 export default function PreviewVideo() {
   const videoRef = useRef(null);
@@ -24,6 +24,8 @@ export default function PreviewVideo() {
 
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateMessage, setUpdateMessage] = useState("");
+
+  const token = localStorage.getItem("token");
 
   // Fetch from backend if no passedData
   useEffect(() => {
@@ -65,10 +67,16 @@ export default function PreviewVideo() {
   }, [passedData, id]);
 
   useEffect(() => {
+    if (!token || !isTokenValid(token)) return;
+
     if (isEditOpen && videoRef.current) {
       videoRef.current.pause();
     }
   }, [isEditOpen]);
+
+  if (!token || !isTokenValid(token)) {
+    return <Navigate to="/authentication" />;
+  }
 
   const handleUpdateData = async (
     selectedEffect,

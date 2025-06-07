@@ -37,7 +37,7 @@ export default function LoginForm({ setActiveForm }) {
   };
 
   return (
-    <form className={`login`} onSubmit={handleLogin}>
+    <form className='login' onSubmit={handleLogin}>
       <div className="field">
         <input
           type="text"

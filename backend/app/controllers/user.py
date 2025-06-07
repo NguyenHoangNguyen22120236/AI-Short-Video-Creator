@@ -12,8 +12,7 @@ class UserController:
     @staticmethod
     async def authenticate_user(db: AsyncSession, email: str, password: str):
         # Query user by email asynchronously
-        result = await db.execute(select(User).filter_by(email=email))
-        user = result.scalars().first()
+        user = await User.get_by_email(db, email)
         if not user or not verify_password(password, user.hashed_password):
             raise HTTPException(status_code=400, detail="Invalid credentials")
         return user

@@ -176,3 +176,9 @@ form .btn input[type="submit"]{
   font-weight: 500;
   cursor: pointer;
 }
+
+.text-gradient {
+  background: linear-gradient(to right, #a100ff, #ff007a, #ffd700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

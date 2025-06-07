@@ -41,6 +41,8 @@ class User(Base):
     async def get_by_email(cls, db: AsyncSession, email: str):
         """Fetch a user by their email asynchronously."""
         result = await db.execute(select(cls).filter_by(email=email))
+        if not result:
+            return None
         return result.scalars().first()
 
 

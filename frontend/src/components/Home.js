@@ -23,8 +23,9 @@ export default function Home() {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
+    if (!token || !isTokenValid(token)) return;
+
     const fetchVideos = async () => {
-      if (!token || !isTokenValid(token)) return;
       try {
         const response = await fetch(
           `http://127.0.0.1:8000/api/video/get_videos_history/${3}`,
@@ -49,10 +50,10 @@ export default function Home() {
     };
 
     fetchVideos();
-  }, [token]);
+  }, []);
 
   if (!token || !isTokenValid(token)) {
-    return <Navigate to="/login-signup" />;
+    return <Navigate to="/authentication" />;
   }
 
   return (

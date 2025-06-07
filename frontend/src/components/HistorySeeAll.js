@@ -7,9 +7,8 @@ import { useState, useEffect, useRef } from "react";
 import LoadingStatus from "./LoadingStatus";
 import UpdateStatusModal from "./UpdateStatusModal";
 import DotsSetting from "./DotsSetting";
-
-const token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkzMDkxNjB9.68rcsvQZwqaxQ6WEbkh28Q6AV_d99xRDHtEoZyFDi1M";
+import { isTokenValid } from "../utils/auth";
+import { Navigate } from "react-router-dom";
 
 export default function HistorySeeAll() {
   const [historyData, setHistoryData] = useState({});
@@ -21,8 +20,12 @@ export default function HistorySeeAll() {
 
   const dotsRefs = useRef({});
 
+  const token = localStorage.getItem("token");
+
   // Fetch history data from the API
   useEffect(() => {
+    if (!token || !isTokenValid(token)) return;
+
     const fetchHistory = async () => {
       try {
         const response = await fetch(
@@ -51,6 +54,10 @@ export default function HistorySeeAll() {
 
     fetchHistory();
   }, []);
+
+  if (!token || !isTokenValid(token)) {
+    return <Navigate to="/authentication" />;
+  }
 
   return (
     <div className="container px-lg-5 py-lg-3 px-md-3 py-md-2 px-sm-1 py-sm-1 text-white">
@@ -101,12 +108,12 @@ export default function HistorySeeAll() {
       {loading && <LoadingStatus message="Loading history" />}
 
       {isDeleting && <LoadingStatus message="Deleting" />}
-      
-            <UpdateStatusModal
-              showUpdateModal={showUpdateModal}
-              setShowUpdateModal={setShowUpdateModal}
-              updateMessage={updateMessage}
-            />
+
+      <UpdateStatusModal
+        showUpdateModal={showUpdateModal}
+        setShowUpdateModal={setShowUpdateModal}
+        updateMessage={updateMessage}
+      />
     </div>
   );
 }
