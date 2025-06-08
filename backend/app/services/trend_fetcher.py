@@ -4,8 +4,8 @@ class TrendFetcherService:
     def __init__(self):
         pass
 
-    def fetch_trends(self, location):
+    async def fetch_trends(self, location):
         serp_api_google_trend = SerpAPIGoogleTrend()
-        data = serp_api_google_trend.get_trending_searches(location)
+        data = await serp_api_google_trend.get_trending_searches(location)
         
         return [trend["query"] for trend in data]

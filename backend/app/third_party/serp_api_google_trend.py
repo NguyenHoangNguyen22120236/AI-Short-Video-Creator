@@ -10,7 +10,7 @@ class SerpAPIGoogleTrend():
     def __init__(self):
         pass
     
-    def get_trending_searches(self, location):
+    async def get_trending_searches(self, location):
         params = {
             "engine": "google_trends_trending_now",
             "geo": location,

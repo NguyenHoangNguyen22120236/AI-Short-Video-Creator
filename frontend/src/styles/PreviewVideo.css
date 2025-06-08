@@ -52,7 +52,13 @@
 .video-container {
   position: relative;
   width: 360;
-  height: 640  
+  height: 640;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  overflow: hidden;
+  display: inline-block;
+  
 }
 
 .video-container canvas {
@@ -69,4 +75,22 @@
   flex-direction: row;
   justify-content: space-between;
   width: 360px;
+}
+
+.video-title {
+  background: linear-gradient(135deg, #616063, #474747);
+  padding: 10px 25px;
+  border-radius: 30px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: white;
+  max-width: 80vw;
+  text-align: center;
+  user-select: none;
+  /* Optional smooth fade */
+  transition: background 0.3s ease;
+}
+
+.video-title:hover {
+  background: linear-gradient(135deg, #c5c5c5, #483e54);
 }

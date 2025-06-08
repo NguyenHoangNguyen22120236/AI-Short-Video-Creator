@@ -29,7 +29,7 @@ class SubtitlesService:
                         Now write about: {self.topic}. Write in {'English' if self.language_code == 'en-US' else 'Vietnamese'} language.'''
             deepseek = DeepSeek()
             
-            subtitles = deepseek.generate_subtitles(prompt)
+            subtitles = await deepseek.generate_subtitles(prompt)
             
         except Exception as e:
             raise Exception(f"Error generating subtitles: {str(e)}")

@@ -179,7 +179,9 @@ export default function PreviewVideo() {
   const sanitizeFileName = (name) => name.replace(/[\\/:*?"<>|]/g, "");
 
   return (
-    <div className="d-flex flex-column align-items-center justify-content-center text-white py-5">
+    <div className="d-flex flex-column align-items-center justify-content-center text-white py-5 gap-3">
+      <h2 className="video-title">{data?.topic || "Untitled Video"}</h2>
+
       <div className="video-container">
         <video
           ref={videoRef}

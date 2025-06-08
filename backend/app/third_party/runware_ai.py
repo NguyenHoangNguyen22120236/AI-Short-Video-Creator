@@ -1,4 +1,3 @@
-from runware import Runware, IImageInference
 import asyncio
 import requests
 
@@ -6,7 +5,7 @@ class RunwareAI:
     def __init__(self):
         pass
 
-    def generate_image(self, prompt):
+    async def generate_image(self, prompt):
         '''async def async_generate_image(prompt):
             runware = Runware(api_key=RUNWARE_API_KEY)
             await runware.connect()

@@ -12,7 +12,7 @@ class DeepSeek():
         pass
     
     
-    def __make_api_call(self, prompt):
+    async def __make_api_call(self, prompt):
         response = requests.post(
             url="https://openrouter.ai/api/v1/chat/completions",
             headers={
@@ -37,8 +37,8 @@ class DeepSeek():
         return data
               
                  
-    def generate_subtitles(self, prompt) -> list:  
-        data:dict = self.__make_api_call(prompt)
+    async def generate_subtitles(self, prompt) -> list:  
+        data:dict = await self.__make_api_call(prompt)
         
         if data.get('error'):
             raise Exception(f"Error from API Deepseek: {data['error']}")
@@ -58,8 +58,8 @@ class DeepSeek():
         return cleaned_sections
     
     
-    def generate_prompt_for_image_generator(self, prompt) -> str:
-        data:dict = self.__make_api_call(prompt)
+    async def generate_prompt_for_image_generator(self, prompt) -> str:
+        data:dict = await self.__make_api_call(prompt)
         
         if data.get('error'):
             raise Exception(f"Error from API Deepseek: {data['error']}")

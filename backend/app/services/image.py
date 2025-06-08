@@ -18,9 +18,9 @@ class ImageService:
                                         generate image that is suitable with this sence (Just give the prompt, from 10 - 15 words):{subtitle}.
                                         
                                         The prompt should be in English'''
-                promt_atability_ai = deepseek.generate_prompt_for_image_generator(prompt=prompt_deepseek)
+                promt_atability_ai = await deepseek.generate_prompt_for_image_generator(prompt=prompt_deepseek)
 
-                response = runware_ai.generate_image(prompt=promt_atability_ai)
+                response = await runware_ai.generate_image(prompt=promt_atability_ai)
                 
                 if response is None:
                     return None

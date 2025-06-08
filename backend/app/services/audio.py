@@ -7,7 +7,7 @@ class AudioService:
         audio_urls = []
         
         for i, subtitle in enumerate(subtitles):
-            binary_data = google_cloud_api.convert_text_to_speech(str(subtitle), language_code)
+            binary_data = await google_cloud_api.convert_text_to_speech(str(subtitle), language_code)
             
             file = f'public/audios/{email}-output{i}.mp3'
             with open(file, "wb") as out:

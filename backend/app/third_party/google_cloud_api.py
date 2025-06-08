@@ -1,11 +1,10 @@
 from google.cloud import texttospeech
-from dotenv import load_dotenv
 
 class GoogleCloudAPI:
     def __init__(self):
         pass
 
-    def convert_text_to_speech(self, subtitle, language_code="en-US"):
+    async def convert_text_to_speech(self, subtitle, language_code="en-US"):
         
         client = texttospeech.TextToSpeechClient.from_service_account_file('gcp_key.json')
         
