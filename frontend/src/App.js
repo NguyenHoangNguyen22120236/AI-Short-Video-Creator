@@ -6,6 +6,7 @@ import HistorySeeAll from './components/HistorySeeAll';
 import CreateVideo from './components/CreateVideo';
 import PreviewVideo from './components/PreviewVideo';
 import Authentication from './components/Authentication';
+import ErrorPage from "./components/ErrorPage";
 
 function AppContent() {
   const location = useLocation();
@@ -21,7 +22,8 @@ function AppContent() {
         <Route path="/create-video" element={<CreateVideo />} />
         <Route path="/preview-video/:id" element={<PreviewVideo />} />
         <Route path="/authentication" element={<Authentication />} />
-        <Route path="*" element={<div>Page Not Found</div>} />
+        <Route path="/error" element={<ErrorPage />} />
+        <Route path="*" element={<ErrorPage />} />
       </Routes>
     </>
   );

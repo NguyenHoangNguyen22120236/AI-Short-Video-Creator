@@ -7,7 +7,7 @@ import LoadingStatus from "./LoadingStatus";
 import { ThumbnailContext } from "../context/ThumbnailContext";
 import { isTokenValid } from "../utils/auth";
 import { Navigate } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
 
 export default function PreviewVideo() {
   const videoRef = useRef(null);
@@ -24,6 +24,8 @@ export default function PreviewVideo() {
 
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateMessage, setUpdateMessage] = useState("");
+
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
 
@@ -58,7 +60,11 @@ export default function PreviewVideo() {
           setCurrentMusic(videoData.music || null);
           setSelectedStickers(videoData.stickers || []);
         } catch (error) {
-          console.error("Failed to fetch video data:", error);
+          navigate("/error", {
+            state: {
+              message: "Failed to fetch video. Please try again later.",
+            },
+          });
         }
       };
 

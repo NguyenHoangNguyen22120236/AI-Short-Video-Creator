@@ -1,0 +1,10 @@
+.error-page {
+  min-height: 100vh;
+  background-color: #fefefe;
+  color: #333;
+}
+
+.error-image {
+  width: 120px;
+  height: auto;
+}

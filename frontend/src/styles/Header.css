@@ -3,6 +3,10 @@
     padding: 20px 50px 20px 50px;
     background-color: #2D2D2D;
     border-bottom: 2px solid #6C6C6C;
+    position: fixed;
+    position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .logo {
