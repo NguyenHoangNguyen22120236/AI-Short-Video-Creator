@@ -17,18 +17,8 @@ class CloudinaryService:
     def __init__(self):
         pass
     
-    async def upload_video(self, file_path):
-        upload_result:dict = cloudinary.uploader.upload(file_path, resource_type="video")
-        return upload_result.get("secure_url")
-    
-    
-    async def upload_audio(self, file_path):
-        upload_result:dict = cloudinary.uploader.upload(file_path, resource_type="raw")
-        return upload_result.get("secure_url")
-    
-    
-    async def upload_image(self, file_path):
-        upload_result:dict = cloudinary.uploader.upload(file_path, resource_type="image")
+    async def upload_file(self, file_path, resource_type):
+        upload_result:dict = cloudinary.uploader.upload(file_path, resource_type=resource_type)
         return upload_result.get("secure_url")
     
     
@@ -41,7 +31,7 @@ class CloudinaryService:
             raise ValueError("Invalid Cloudinary URL format")
     
     
-    async def delete_file(self, cloudinary_url, resource_type="video"):
+    async def delete_file(self, cloudinary_url, resource_type):
         if not cloudinary_url:
             raise ValueError("Cloudinary URL cannot be empty.")
 

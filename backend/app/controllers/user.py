@@ -109,3 +109,17 @@ class UserController:
         return user
         
         
+    @staticmethod
+    async def get_user_by_email(db: AsyncSession, email: str):
+        user = await User.get_by_email(db, email)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        #Just return the avartars and username
+        user_data = {
+            "username": user.username,
+            "avatar": user.avatar
+        }
+        
+        return user_data
+        

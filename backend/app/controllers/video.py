@@ -51,8 +51,8 @@ class VideoController:
                 audio_path = f'public/audios/{email}-output{i}.mp3'
                 
                 # Append tasks to the list
-                upload_image_tasks.append(cloudinary_service.upload_image(image_path))
-                upload_audio_tasks.append(cloudinary_service.upload_audio(audio_path))
+                upload_image_tasks.append(cloudinary_service.upload_file(image_path, resource_type="image"))
+                upload_audio_tasks.append(cloudinary_service.upload_file(audio_path, resource_type="video"))
 
             # Run all image and audio uploads concurrently
             image_results, audio_results = await asyncio.gather(
@@ -111,7 +111,10 @@ class VideoController:
             
             # delete old video from Cloudinary
             cloudinary_service = CloudinaryService()
-            cloudinary_service.delete_file(video.video)
+            await cloudinary_service.delete_file(video.video, resource_type="video")
+            
+            if video.thumbnail:
+                await cloudinary_service.delete_file(video.thumbnail, resource_type="image")
             
             video.video = result['video']
             if text_effect is not None:
@@ -186,18 +189,18 @@ class VideoController:
             
             # delete video from Cloudinary
             cloudinary_service = CloudinaryService()
-            cloudinary_service.delete_file(video.video)
+            await cloudinary_service.delete_file(video.video, resource_type="video")
             
             #delete audio and image files from cloudinary
             for image_url in video.image_urls:
-                cloudinary_service.delete_file(image_url)
+                await cloudinary_service.delete_file(image_url, resource_type="image")
                 
             for audio_url in video.audio_urls:
-                cloudinary_service.delete_file(audio_url)
+                await cloudinary_service.delete_file(audio_url, resource_type="video")
                 
             #delete thumbnail if exists
             if video.thumbnail:
-                cloudinary_service.delete_file(video.thumbnail)
+                await cloudinary_service.delete_file(video.thumbnail, resource_type="image")
             
             return {"detail": "Video deleted successfully"}, 200
         except NoResultFound:
@@ -205,6 +208,3 @@ class VideoController:
         except Exception as e:
             print(f"Error deleting video: {e}")
             raise HTTPException(status_code=500, detail="Failed to delete video")
-            
-    
-    

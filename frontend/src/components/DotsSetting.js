@@ -3,9 +3,6 @@ import ConfirmDeleteVideoModal from "./ConfirmDeleteVideoModal";
 import { deleteVideo } from "../utils/deleteVideo";
 import "../styles/DotsSetting.css";
 
-const token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjoyLCJleHAiOjE3NDkzMDkxNjB9.68rcsvQZwqaxQ6WEbkh28Q6AV_d99xRDHtEoZyFDi1M";
-
 export default function DotsSetting({
   videoId,
   dotsRefs,
@@ -40,6 +37,8 @@ export default function DotsSetting({
   const handleDelete = async (videoId) => {
     setShowDeleteModal(false);
     setIsDeleting(true);
+
+    const token = localStorage.getItem("token");
 
     const deleteMessage = await deleteVideo(videoId, token);
     /*const deleteMessage = {

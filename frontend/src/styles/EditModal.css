@@ -83,5 +83,6 @@
 
 .modal-body {
   max-height: 80vh;
-  overflow-y: auto 
+  overflow-y: auto;
+  scrollbar-width: none;
 }

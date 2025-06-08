@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function Header() {
   const [showLogout, setShowLogout] = useState(false);
+  const [userData, setUserData] = useState({ username: "", avatar: null });
   const userRef = useRef(null);
 
   const navigate = useNavigate();
@@ -13,6 +14,32 @@ export default function Header() {
     localStorage.removeItem("token");
     navigate("/authentication");
   };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://127.0.0.1:8000/api/user/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setUserData({
+            username: data.username || "Anonymous",
+            avatar: data.avatar,
+          });
+        } else {
+          console.error("Failed to fetch user data");
+        }
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   // Hide logout when clicking outside
   useEffect(() => {
@@ -27,6 +54,31 @@ export default function Header() {
     };
   }, []);
 
+  const renderAvatar = () => {
+    if (userData.avatar) {
+      return (
+        <img
+          src={userData.avatar}
+          alt="account"
+          style={{ borderRadius: "50%" }}
+        />
+      );
+    } else {
+      const initials = userData.username
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
+
+      return (
+        <div className="initials-avatar">
+          {initials || "U"}
+        </div>
+      );
+    }
+  };
+
   return (
     <div className="d-flex justify-content-between align-items-center header px-3 py-2">
       <div className="d-flex gap-3 align-items-center">
@@ -38,13 +90,17 @@ export default function Header() {
         </Link>
       </div>
 
-      <div className="position-relative" ref={userRef}>
+      <div className="position-relative d-flex justify-content-center flex-column align-items-center" ref={userRef}>
         <div
-          className="user d-flex justify-content-center align-items-center gap-2"
+          className="user d-flex justify-content-center align-items-center"
           onClick={() => setShowLogout((prev) => !prev)}
         >
-          <img src="/user.png" alt="account" width={32} height={32} />
+          {renderAvatar()}
         </div>
+
+        <span className="username text-white ms-2">
+          {userData.username || "Anonymous"}
+        </span>
 
         <div
           className={`show-logout position-absolute bg-white border rounded shadow-sm px-3 py-2 ${

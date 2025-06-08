@@ -3,6 +3,7 @@ import { Rnd } from "react-rnd";
 import "../styles/StickerTab.css";
 import { ThumbnailContext } from "../context/ThumbnailContext";
 
+
 export default function StickerTab({
   stockStickers,
   selectedStickers,
@@ -10,9 +11,7 @@ export default function StickerTab({
 }) {
 
   const thumbnail = useContext(ThumbnailContext);
-  console.log("Thumbnail in StickerTab:", thumbnail);
 
-  //const [stickers, setStickers] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
 
   const handleAddSticker = (sticker) => {
@@ -39,9 +38,9 @@ export default function StickerTab({
   };
 
   return (
-    <div style={{ display: "flex", padding: 16 }}>
+    <div className="d-flex flex-lg-row flex-md-row flex-sm-column flex-column gap-2 p-3">
       {/* Sticker Picker */}
-      <div style={{ width: 150, paddingRight: 16 }}>
+      <div className="flex-grow-1">
         <h3>Stickers</h3>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           {stockStickers.map((sticker) => (
@@ -60,8 +59,9 @@ export default function StickerTab({
       <div
         style={{
           position: "relative",
-          width: 360,
-          height: 640,
+          flexShrink: 0,
+          width: '360px',
+          height: '640px',
           backgroundImage: `url(${thumbnail})`, // replace with your video frame
           backgroundSize: "cover",
           backgroundPosition: "center",

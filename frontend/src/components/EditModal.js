@@ -27,6 +27,8 @@ export default function EditModal({
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const hasChanged = () => {
+    console.log(selectedEffect);
+    console.log(currentData.selectedEffect);
     return (
       selectedEffect !== currentData.selectedEffect ||
       currentMusic !== currentData.currentMusic ||
@@ -38,8 +40,8 @@ export default function EditModal({
   const handleSave = () => {
     if (hasChanged()) {
       setShowConfirmModal(true); // ask for confirmation
-    } else {
-      applyChanges();
+    }else{
+      onClose(); // close modal without changes
     }
   };
 

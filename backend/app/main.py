@@ -232,3 +232,46 @@ https://res.cloudinary.com/dfa9owyll/raw/upload/v1748874951/qqdwgejh7ba12rpmrewv
 cloudinary_service = CloudinaryService()
 
 print(cloudinary_service.delete_file('https://res.cloudinary.com/dfa9owyll/video/upload/v1748936061/engtqh8xj9vi4qctfpsu.mp4'))'''
+
+
+
+
+# Read all files in the public/stickers directory
+'''from third_party.cloudinary import CloudinaryService
+import os
+import asyncio
+
+def list_files_in_directory(directory):
+    return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+
+cloudinary_service = CloudinaryService()
+
+async def upload_files_to_cloudinary(directory, output_file='uploaded_urls.txt'):
+    files = list_files_in_directory(directory)
+    uploaded_urls = []
+
+    for file in files:
+        file_path = os.path.join(directory, file)
+        print(f"Uploading {file_path}...")
+        result = await cloudinary_service.upload_file(file_path, resource_type='video')  # Change resource_type as needed
+        print(f"Uploaded {file} to Cloudinary: {result}")
+        
+        # Assuming result contains the URL as a string or under a key, e.g., result['url']
+        if isinstance(result, dict) and 'url' in result:
+            uploaded_urls.append(result['url'])
+        else:
+            uploaded_urls.append(str(result))  # fallback, just in case
+
+    # Save URLs to a file
+    with open(output_file, 'w') as f:
+        for url in uploaded_urls:
+            f.write(url + '\n')
+
+    print(f"All URLs saved to {output_file}")
+
+if __name__ == "__main__":
+    asyncio.run(upload_files_to_cloudinary('public/musics'))'''
+    
+    
+    
+

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query, Depends
+from fastapi import APIRouter,Depends
 from fastapi.responses import JSONResponse
 from controllers.video import VideoController
 from utils.auth import verify_jwt_token

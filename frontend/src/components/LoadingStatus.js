@@ -15,7 +15,7 @@ export default function LoadingStatus({ message }) {
   return (
     <div className="blocking-overlay d-flex flex-column justify-content-center align-items-center">
       <div className="loader"></div>
-      <div className="loading-message">
+      <div className="loading-message text-white">
         {message}{dots}
       </div>
     </div>

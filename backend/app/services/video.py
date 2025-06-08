@@ -186,7 +186,7 @@ class VideoService:
             thumbnail_path
         ], check=True)
         
-        thumbnail_url = await cloudinary_service.upload_image(thumbnail_path)
+        thumbnail_url = await cloudinary_service.upload_file(thumbnail_path, resource_type="image")
 
         if os.path.exists(thumbnail_path):
             os.remove(thumbnail_path)
@@ -275,7 +275,7 @@ class VideoService:
         
         # Upload video to Cloudinary
         cloudinary_service = CloudinaryService()
-        video_url = await cloudinary_service.upload_video(output_path)
+        video_url = await cloudinary_service.upload_file(output_path, resource_type="video")
 
         # Thumbnail generation and upload
         thumbnail_url = await self.__generate_and_upload_thumbnail(output_path, self.email, cloudinary_service)
