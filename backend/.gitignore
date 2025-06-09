@@ -1,0 +1,7 @@
+.venv/
+.env
+app/gcp_key.json
+*.pyc
+__pycache__/
+*.pyo
+*.pyd

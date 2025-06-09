@@ -233,10 +233,7 @@ class VideoService:
                 else:
                     audio_path = audio_url
 
-                
                 parts = self.__split_subtitles(subtitle_text, 5)
-                
-                print('Splitting subtitles into parts:', parts)
 
                 # Generate segment subtitles with timing relative to total video
                 segment_subs, part_duration = self.__generate_segment_subtitles(parts, current_time, self.__get_audio_duration(audio_url))
@@ -283,8 +280,6 @@ class VideoService:
         # delete output video file after upload
         if os.path.exists(output_path):
             os.remove(output_path)
-            
-        print('video_url:', video_url)
 
         return {
             "video": video_url,

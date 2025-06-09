@@ -34,7 +34,7 @@ export default function ConfirmDeleteVideoModal({
             Cancel
           </button>
           <button
-            className="btn btn-danger"
+            className="btn-danger"
             onClick={onConfirmDelete}
           >
             Delete

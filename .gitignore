@@ -1,8 +1,0 @@
-.venv/
-backend/.env
-frontend/.env
-backend/app/gcp_key.json
-*.pyc
-__pycache__/
-*.pyo
-*.pyd
