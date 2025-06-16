@@ -29,7 +29,7 @@ export default function HistorySeeAll() {
     const fetchHistory = async () => {
       try {
         const response = await fetch(
-          "http://127.0.0.1:8000/api/video/get_all_videos_history",
+          `${process.env.REACT_APP_BACKEND_URL}/api/video/get_all_videos_history`,
           {
             method: "GET",
             headers: {

@@ -1,12 +1,12 @@
 from fastapi import APIRouter,Depends
 from fastapi.responses import JSONResponse
-from controllers.video import VideoController
-from utils.auth import verify_jwt_token
+from app.controllers.video import VideoController
+from app.utils.auth import verify_jwt_token
+from app.utils.database import get_db
+from app.utils.schemas import VideoSchema, VideoHistorySchema
 from pydantic import BaseModel
 from typing import Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
-from utils.database import get_db
-from utils.schemas import VideoSchema, VideoHistorySchema
 
 video_router = APIRouter()
 video_controller = VideoController()

@@ -40,7 +40,7 @@ export default function PreviewVideo() {
       const fetchVideo = async () => {
         try {
           const response = await fetch(
-            `http://127.0.0.1:8000/api/video/get_video/${id}`,
+            `${process.env.REACT_APP_BACKEND_URL}/api/video/get_video/${id}`,
             {
               method: "GET",
               headers: {
@@ -100,7 +100,7 @@ export default function PreviewVideo() {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/video/update_video/${id}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/video/update_video/${id}`,
         {
           method: "PUT",
           headers: {

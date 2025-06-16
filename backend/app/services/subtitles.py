@@ -1,4 +1,4 @@
-from third_party.deepseek import DeepSeek
+from app.third_party.deepseek import DeepSeek
 import logging
 
 logger = logging.getLogger(__name__)

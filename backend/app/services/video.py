@@ -3,9 +3,9 @@ import requests
 import subprocess
 import tempfile
 import shutil
-from third_party.cloudinary import CloudinaryService
-from utils.draw_text import build_drawtext_filter
-from utils.url import is_url
+from app.third_party.cloudinary import CloudinaryService
+from app.utils.draw_text import build_drawtext_filter
+from app.utils.url import is_url
 
 
 class VideoService:
@@ -174,7 +174,7 @@ class VideoService:
     
     
     async def __generate_and_upload_thumbnail(self, video_path, email, cloudinary_service):
-        thumbnail_path = f'public/thumbnails/{email}-thumbnail.jpg'
+        thumbnail_path = f'app/public/thumbnails/{email}-thumbnail.jpg'
         
         subprocess.run([
             "ffmpeg", "-y",
@@ -197,7 +197,7 @@ class VideoService:
     async def create_video(self, text_effect=None, music=None, stickers=None):
         video_segments = []
         current_time = 0
-        output_path = f'public/videos/{self.email}-output.mp4'
+        output_path = f'app/public/videos/{self.email}-output.mp4'
 
         with tempfile.TemporaryDirectory() as temp_dir:
             local_stickers = None

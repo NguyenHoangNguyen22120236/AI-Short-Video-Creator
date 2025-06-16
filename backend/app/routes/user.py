@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from controllers.user import UserController
-from sqlalchemy.ext.asyncio import AsyncSession
-from utils.database import get_db
+from app.controllers.user import UserController
+from app.utils.database import get_db
+from app.utils.auth import verify_jwt_token
 from fastapi.responses import JSONResponse
-from utils.auth import verify_jwt_token
+from sqlalchemy.ext.asyncio import AsyncSession
 
 user_router = APIRouter()
 

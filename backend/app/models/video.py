@@ -3,7 +3,6 @@ from sqlalchemy.sql import func
 from ._base import Base
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import declarative_base
 from sqlalchemy.exc import NoResultFound, IntegrityError
 from sqlalchemy.orm import relationship
 

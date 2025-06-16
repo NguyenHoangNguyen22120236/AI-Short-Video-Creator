@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query
 from fastapi.responses import JSONResponse
-from controllers.trendy_fetcher import TrendyFetcherController
+from app.controllers.trendy_fetcher import TrendyFetcherController
 
 trendy_fetcher_router = APIRouter()
 trendy_fetcher_controller = TrendyFetcherController()

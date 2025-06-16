@@ -1,4 +1,4 @@
-from third_party.serp_api_google_trend import SerpAPIGoogleTrend
+from app.third_party.serp_api_google_trend import SerpAPIGoogleTrend
 
 class TrendFetcherService:
     def __init__(self):

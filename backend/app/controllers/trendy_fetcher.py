@@ -1,4 +1,4 @@
-from services.trend_fetcher import TrendFetcherService
+from app.services.trend_fetcher import TrendFetcherService
 
 class TrendyFetcherController:
     def __init__(self, ):

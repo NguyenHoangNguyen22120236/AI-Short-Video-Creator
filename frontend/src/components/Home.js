@@ -28,7 +28,7 @@ export default function Home() {
     const fetchVideos = async () => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:8000/api/video/get_videos_history/${3}`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/video/get_videos_history/${3}`,
           {
             method: "GET",
             headers: {

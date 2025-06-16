@@ -5,3 +5,5 @@ docker exec -it postgres_db psql -U postgres -d aishortvideocreator
 uvicorn main:app --reload
 
 alembic revision --autogenerate -m ""
+
+pip freeze > requirements.txt

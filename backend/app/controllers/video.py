@@ -1,15 +1,15 @@
 import asyncio
 from collections import defaultdict
-from services.subtitles import SubtitlesService
-from services.audio import AudioService
-from services.image import ImageService
-from services.video import VideoService
-from third_party.cloudinary import CloudinaryService
+from app.services.subtitles import SubtitlesService
+from app.services.audio import AudioService
+from app.services.image import ImageService
+from app.services.video import VideoService
+from app.third_party.cloudinary import CloudinaryService
+from app.models.video import Video
 from fastapi import HTTPException
 import os
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
-from models.video import Video
 
 class VideoController:
     @staticmethod
@@ -47,8 +47,8 @@ class VideoController:
             upload_audio_tasks = []
 
             for i in range(len(image_urls)):
-                image_path = f'public/images/{email}-output{i}.jpg'
-                audio_path = f'public/audios/{email}-output{i}.mp3'
+                image_path = f'app/public/images/{email}-output{i}.png'
+                audio_path = f'app/public/audios/{email}-output{i}.mp3'
                 
                 # Append tasks to the list
                 upload_image_tasks.append(cloudinary_service.upload_file(image_path, resource_type="image"))
@@ -67,21 +67,22 @@ class VideoController:
             
             # Create video record in the database
             video_id = await Video.create(db, user_id=user_id, video_data=video_data)
-            
-            #delete files after video creation
-            for i in range(len(image_urls)):
-                image_path = f'public/images/{email}-output{i}.jpg'
-                audio_path = f'public/audios/{email}-output{i}.mp3'
-                if os.path.exists(image_path):
-                    os.remove(image_path)
-                if os.path.exists(audio_path):
-                    os.remove(audio_path)
                     
             result['id'] = video_id
             
         except Exception as e:
             print(f"Error creating video: {e}")
             raise HTTPException(status_code=500, detail="Failed to generate video")
+        
+        finally:
+            #delete files after video creation
+            for i in range(4):
+                image_path = f'app/public/images/{email}-output{i}.png'
+                audio_path = f'app/public/audios/{email}-output{i}.mp3'
+                if os.path.exists(image_path):
+                    os.remove(image_path)
+                if os.path.exists(audio_path):
+                    os.remove(audio_path)
         
         return result, 200
     

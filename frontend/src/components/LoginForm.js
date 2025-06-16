@@ -22,7 +22,7 @@ export default function LoginForm({ setActiveForm }) {
     const idToken = response.credential;
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/user/google-login", {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/user/google-login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -68,7 +68,7 @@ export default function LoginForm({ setActiveForm }) {
     }
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/user/login", {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

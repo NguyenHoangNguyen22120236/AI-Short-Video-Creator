@@ -19,7 +19,7 @@ export default function Header() {
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://127.0.0.1:8000/api/user/me", {
+        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/user/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

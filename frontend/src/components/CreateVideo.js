@@ -29,7 +29,7 @@ export default function CreateVideo() {
       setTrendyTopics([]);
       try {
         const response = await fetch(
-          `http://127.0.0.1:8000/api/trendy_fetcher/fetch_trends?location=${location}`
+          `${process.env.REACT_APP_BACKEND_URL}/api/trendy_fetcher/fetch_trends?location=${location}`
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -63,7 +63,7 @@ export default function CreateVideo() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/video/create_video",
+        `${process.env.REACT_APP_BACKEND_URL}/api/video/create_video`,
         {
           method: "POST",
           headers: {

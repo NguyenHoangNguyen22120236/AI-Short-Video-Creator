@@ -1,7 +1,7 @@
-import requests
-import json
+
 from dotenv import load_dotenv
 import os
+import httpx
 
 load_dotenv()
 
@@ -13,28 +13,24 @@ class DeepSeek():
     
     
     async def __make_api_call(self, prompt):
-        response = requests.post(
-            url="https://openrouter.ai/api/v1/chat/completions",
-            headers={
-                "Authorization": f'Bearer {deepseek_api_key}',
-                "Content-Type": "application/json",
-                "HTTP-Referer": "<YOUR_SITE_URL>", # Optional. Site URL for rankings on openrouter.ai.
-                "X-Title": "<YOUR_SITE_NAME>", # Optional. Site title for rankings on openrouter.ai.
-            },
-            data=json.dumps({
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url="https://openrouter.ai/api/v1/chat/completions",
+                headers={
+                    "Authorization": f'Bearer {deepseek_api_key}',
+                    "Content-Type": "application/json",
+                    "HTTP-Referer": "<YOUR_SITE_URL>",  # Optional
+                    "X-Title": "<YOUR_SITE_NAME>",      # Optional
+                },
+                json={
                     "model": "deepseek/deepseek-r1:free",
-                    "messages": [
-                        {
-                            "role": "user",
-                            "content": prompt,
-                        }
-                    ],
-                })
+                    "messages": [{"role": "user", "content": prompt}]
+                }
             )
             
-        data = response.json()
-        
-        return data
+            response.raise_for_status()
+            return response.json()
               
                  
     async def generate_subtitles(self, prompt) -> list:  

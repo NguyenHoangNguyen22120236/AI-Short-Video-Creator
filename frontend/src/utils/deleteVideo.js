@@ -1,7 +1,7 @@
 export async function deleteVideo(videoId, token) {
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/api/video/delete_video/${videoId}`,
+      `${process.env.REACT_APP_BACKEND_URL}/api/video/delete_video/${videoId}`,
       {
         method: "DELETE",
         headers: {
