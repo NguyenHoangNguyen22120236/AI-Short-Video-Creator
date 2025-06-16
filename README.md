@@ -30,8 +30,13 @@ Make sure you have the following installed on your machine:
 2. **Create and activate a Python virtual environment:**
 
    ```bash
-   python -m venv venv
-   .venv/Scripts/activate
+   python -m venv .venv
+
+   # Windows
+   .venv\Scripts\activate
+
+   # macOS/Linux
+   source .venv/bin/activate
 3. **Install dependencies:**
 
    ```bash
@@ -45,6 +50,9 @@ Make sure you have the following installed on your machine:
 
    # SERP (Search API) Key
    SERP_API_KEY=your_serp_api_key
+
+   #Stability AI Key
+   STABILITY_API_KEY=your_stability_ai_key
 
    # Cloudflare
    CLOUDFLARE_API_KEY=your_cloudflare_api_key
@@ -65,19 +73,27 @@ Make sure you have the following installed on your machine:
    # Google OAuth
    GOOGLE_CLIENT_ID=your_google_client_id
 
-5. **Start PostgreSQL using Docker**
+   # Frontend URL
+   FRONTEND_URL=http://localhost:3000
+
+5. **Add your Google Cloud service account key**
+
+   Place the `gcp_key.json` file inside the **backend/** directory. This file will be used for authentication with the Google Text-to-Speech API.
+
+6. **Start PostgreSQL using Docker**
 
    Make sure Docker is installed and running. Then run database container
    ```bash
    docker-compose up -d
-6. **Run Alembic migrations**
+7. **Run Alembic migrations**
 
    ```bash
    alembic upgrade head
-7. **Start the FastAPI server**
+8. **Start the FastAPI server**
    ```bash
-   cd app
    uvicorn main:app --reload
+   ```
+
 ### ✅ Frontend Setup (ReactJS)
 1. **Navigate to the frontend/ directory**
    ```bash
@@ -90,6 +106,9 @@ Make sure you have the following installed on your machine:
    ```bash
    # Google OAuth Client ID
    REACT_APP_GOOGLE_CLIENT_ID=your_google_client_id_here
+
+   # Backend URL
+   REACT_APP_BACKEND_URL=http://127.0.0.1:8000
 4. **Start the development server**
    ```bash
    npm start
