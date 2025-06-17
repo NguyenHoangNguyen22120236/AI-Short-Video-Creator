@@ -120,7 +120,7 @@ class VideoService:
             "-i", video_path,
             "-i", music_path,
             "-filter_complex",
-            "[1:a]volume=0.2[a1];[0:a][a1]amix=inputs=2:duration=first:dropout_transition=2[a]",
+            "[1:a]volume=0.5[a1];[0:a][a1]amix=inputs=2:duration=first:dropout_transition=2[a]",
             "-map", "0:v",
             "-map", "[a]",
             "-c:v", "copy",

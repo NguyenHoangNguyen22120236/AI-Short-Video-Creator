@@ -50,6 +50,7 @@
   color: #989898;
   font-weight: 600 ;
   font-size: 1.2rem;
+  cursor: pointer;
 }
 
 .language-selector select {
@@ -59,6 +60,7 @@
   border: 1px solid #555;
   color: #EEEEEECC ;
   border-radius: 4px;
+  cursor: pointer;
 }
 
 .custom-modal .modal-header {
@@ -93,4 +95,5 @@
   border-radius: 4px;
   font-weight: 600 ;
   font-size: 1rem;
+  cursor: pointer;
 }
