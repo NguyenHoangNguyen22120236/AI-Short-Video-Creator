@@ -187,9 +187,14 @@ export default function PreviewVideo() {
           ref={videoRef}
           src={data?.video}
           controls
-          width={360}
-          height={640}
-          style={{ background: "#000" }}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "#000",
+          }}
         />
       </div>
 

@@ -1,17 +1,16 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useRef } from "react";
 import { Rnd } from "react-rnd";
 import "../styles/StickerTab.css";
 import { ThumbnailContext } from "../context/ThumbnailContext";
-
 
 export default function StickerTab({
   stockStickers,
   selectedStickers,
   setSelectedStickers,
 }) {
-
   const thumbnail = useContext(ThumbnailContext);
 
+  const previewRef = useRef(null);
   const [selectedId, setSelectedId] = useState(null);
 
   const handleAddSticker = (sticker) => {
@@ -22,6 +21,8 @@ export default function StickerTab({
       y: 50,
       width: 70,
       height: 70,
+      previewWidth: previewRef.current.offsetWidth, 
+      previewHeight: previewRef.current.offsetHeight
     };
     setSelectedStickers([...selectedStickers, newSticker]);
   };
@@ -57,15 +58,18 @@ export default function StickerTab({
 
       {/* Video Preview */}
       <div
+        ref={previewRef}
         style={{
           position: "relative",
           flexShrink: 0,
-          width: '360px',
-          height: '640px',
-          backgroundImage: `url(${thumbnail})`, // replace with your video frame
+          width: "360px", // scale it to your desired preview size
+          aspectRatio: "9 / 16",
+          backgroundImage: `url(${thumbnail})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           border: "1px solid #ccc",
+          borderRadius: "12px",
+          overflow: "hidden",
         }}
       >
         {selectedStickers.map((sticker) => (

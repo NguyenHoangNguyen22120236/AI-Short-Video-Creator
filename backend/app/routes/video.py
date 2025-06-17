@@ -30,6 +30,8 @@ class Sticker(BaseModel):
     y: float
     width: float
     height: float
+    previewHeight: float
+    previewWidth: float
 
 
 class VideoUpdateRequest(BaseModel):

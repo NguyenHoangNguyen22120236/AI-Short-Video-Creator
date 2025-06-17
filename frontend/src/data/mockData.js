@@ -1,4 +1,4 @@
-export const textEffects = ['Fade', 'Wave', 'Slide', 'Scale', 'Zoom'];
+export const textEffects = ['Fade', 'Wave', 'Slide'];
 
 export const stockMusics = [
   {

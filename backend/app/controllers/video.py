@@ -7,7 +7,6 @@ from app.services.video import VideoService
 from app.third_party.cloudinary import CloudinaryService
 from app.models.video import Video
 from fastapi import HTTPException
-import os
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -29,6 +28,27 @@ class VideoController:
                 image_service.generate_image(subtitles=subtitles, email=email)
             )
             
+            '''subtitles=[
+                'In a tiny Albuquerque garage, two college dropouts tapped at humming computers. Bill Gates and Paul Allen dreamed of putting "a PC in every home," sparking a revolution with code scrawled on napkins.',
+                'By the 1990s, Windows 95 swept the globe, its iconic start menu a portal to the digital age. Offices buzzed with clacking keyboards; homes lit up with dial-up tones—Microsoft reimagined how the world connected.',
+                'The 2000s brought storms: antitrust lawsuits, rivals rising. But from the chaos emerged Xbox’s roar, Azure’s cloud empires, and Cortana’s voice—a phoenix pivoting to futures unimagined by its founders.',
+                'Today, under Satya Nadella’s gaze, AI breathes in PowerPoint drafts, holograms dance in boardrooms, and quantum code cracks cosmic puzzles. Microsoft doesn’t just adapt—it bends the horizon, whispering, “What’s next?”'
+            ]
+            
+            audio_urls = [
+                'app/public/audios/nhnguyen135716@gmail.com-output0.mp3',
+                'app/public/audios/nhnguyen135716@gmail.com-output1.mp3',
+                'app/public/audios/nhnguyen135716@gmail.com-output2.mp3',
+                'app/public/audios/nhnguyen135716@gmail.com-output3.mp3',
+            ]
+            
+            image_urls = [
+                'app/public/images/nhnguyen135716@gmail.com-output0.png',
+                'app/public/images/nhnguyen135716@gmail.com-output1.png',
+                'app/public/images/nhnguyen135716@gmail.com-output2.png',
+                'app/public/images/nhnguyen135716@gmail.com-output3.png',
+            ]'''
+                        
             video_service = VideoService(
                 image_urls=image_urls,
                 audio_urls=audio_urls,
@@ -76,14 +96,13 @@ class VideoController:
         
         finally:
             #delete files after video creation
-            for i in range(4):
+            '''for i in range(4):
                 image_path = f'app/public/images/{email}-output{i}.png'
                 audio_path = f'app/public/audios/{email}-output{i}.mp3'
                 if os.path.exists(image_path):
                     os.remove(image_path)
                 if os.path.exists(audio_path):
-                    os.remove(audio_path)
-        
+                    os.remove(audio_path)'''      
         return result, 200
     
     
@@ -107,17 +126,16 @@ class VideoController:
             result = await video_service.create_video(
                 text_effect=text_effect,
                 music=music,
-                stickers=stickers
+                stickers=stickers,
+                need_thumbnail=False  # No need to generate thumbnail again
             )
             
             # delete old video from Cloudinary
             cloudinary_service = CloudinaryService()
             await cloudinary_service.delete_file(video.video, resource_type="video")
             
-            if video.thumbnail:
-                await cloudinary_service.delete_file(video.thumbnail, resource_type="image")
-            
             video.video = result['video']
+            
             if text_effect is not None:
                 video.text_effect = text_effect
             if music is not None:
@@ -127,6 +145,8 @@ class VideoController:
             
             await db.commit()
             await db.refresh(video)
+            
+            result['thumbnail'] = video.thumbnail
             
         except Exception as e:
             print(f"Error updating video: {e}")

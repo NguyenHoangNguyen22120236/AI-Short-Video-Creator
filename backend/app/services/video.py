@@ -1,12 +1,12 @@
 import os
 import requests
 import subprocess
+import json
 import tempfile
 import shutil
 from app.third_party.cloudinary import CloudinaryService
 from app.utils.draw_text import build_drawtext_filter
 from app.utils.url import is_url
-
 
 class VideoService:
     def __init__(self, image_urls, audio_urls, subtitles, topic ,email):
@@ -18,19 +18,24 @@ class VideoService:
             
             
     def __split_subtitles(self, subtitle, n):
-        """Split subtitle text into n parts, distributing words evenly."""
+        """Split subtitle text into parts with roughly n characters each, preserving word boundaries."""
         words = subtitle.split()
-        k = len(words) // n  # minimum words per part
-        result = []
-        start = 0
+        parts = []
+        current_part = ""
 
-        for i in range(n):
-            end = start + k + (1 if i < len(words) % n else 0)
-            part = ' '.join(words[start:end])
-            result.append(part)
-            start = end
+        for word in words:
+            # Check if adding the next word would exceed the character limit
+            if len(current_part) + len(word) + (1 if current_part else 0) > n:
+                parts.append(current_part)
+                current_part = word
+            else:
+                current_part += (" " if current_part else "") + word
 
-        return result
+        # Add the last part if not empty
+        if current_part:
+            parts.append(current_part)
+
+        return parts
     
     
     def __get_audio_duration(self, audio_url):
@@ -127,34 +132,60 @@ class VideoService:
         
     
     def __add_stickers_to_video(self, video_path, stickers, output_path):
+        # Get actual video size using subprocess + ffprobe
+        def get_video_dimensions(path):
+            cmd = [
+                "ffprobe", "-v", "error",
+                "-select_streams", "v:0",
+                "-show_entries", "stream=width,height",
+                "-of", "json", path
+            ]
+            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            info = json.loads(result.stdout)
+            width = int(info["streams"][0]["width"])
+            height = int(info["streams"][0]["height"])
+            return width, height
+
+        video_width, video_height = get_video_dimensions(video_path)
+
+        # Prepare inputs and filter graph
         inputs = ["-i", video_path]
         filter_complex = []
         overlay_stream = "[0:v]"
 
-        # Add each sticker as input and build overlay chain
         for idx, sticker in enumerate(stickers):
             inputs.extend(["-i", sticker["url"]])
-            scale = f"scale={sticker['width']}:{sticker['height']}"
+
+            # Scale from preview size (frontend canvas) to actual video size
+            scale_x = video_width / sticker["previewWidth"]
+            scale_y = video_height / sticker["previewHeight"]
+
+            real_x = int(sticker["x"] * scale_x)
+            real_y = int(sticker["y"] * scale_y)
+            real_w = int(sticker["width"] * scale_x)
+            real_h = int(sticker["height"] * scale_y)
+
+            scale = f"scale={real_w}:{real_h}"
             overlay_tag = f"[v{idx + 1}]"
-            filter_complex.append(
-                f"[{idx + 1}:v]{scale}{overlay_tag}"
-            )
+            filter_complex.append(f"[{idx + 1}:v]{scale}{overlay_tag}")
+
             overlay_result = f"[tmp{idx + 1}]" if idx < len(stickers) - 1 else "[vout]"
             filter_complex.append(
-                f"{overlay_stream}{overlay_tag}overlay={sticker['x']}:{sticker['y']}{overlay_result}"
+                f"{overlay_stream}{overlay_tag}overlay={real_x}:{real_y}{overlay_result}"
             )
             overlay_stream = overlay_result
 
-        # Compose full FFmpeg command
+        # Compose and run the FFmpeg command
         cmd = [
             "ffmpeg", "-y", *inputs,
             "-filter_complex", ";".join(filter_complex),
             "-map", "[vout]",
-            "-map", "0:a?",  # optional audio from main video
+            "-map", "0:a?",
             "-c:v", "libx264", "-crf", "23", "-preset", "veryfast",
             "-c:a", "aac", "-b:a", "192k",
             output_path
         ]
+
         subprocess.run(cmd, check=True)
     
     
@@ -194,7 +225,7 @@ class VideoService:
         return thumbnail_url
         
         
-    async def create_video(self, text_effect=None, music=None, stickers=None):
+    async def create_video(self, text_effect=None, music=None, stickers=None, need_thumbnail=True):
         video_segments = []
         current_time = 0
         output_path = f'app/public/videos/{self.email}-output.mp4'
@@ -233,7 +264,7 @@ class VideoService:
                 else:
                     audio_path = audio_url
 
-                parts = self.__split_subtitles(subtitle_text, 5)
+                parts = self.__split_subtitles(subtitle_text, 30)
 
                 # Generate segment subtitles with timing relative to total video
                 segment_subs, part_duration = self.__generate_segment_subtitles(parts, current_time, self.__get_audio_duration(audio_url))
@@ -241,7 +272,7 @@ class VideoService:
                 # Create segment video
                 segment_path, duration = self.__create_video_segment(
                     image_path, audio_path, segment_subs,
-                    font_path="/path/to/font.ttf",
+                    font_path=None, # Use default font
                     text_effect=text_effect,
                     temp_dir=temp_dir,
                     segment_index=i
@@ -275,7 +306,8 @@ class VideoService:
         video_url = await cloudinary_service.upload_file(output_path, resource_type="video")
 
         # Thumbnail generation and upload
-        thumbnail_url = await self.__generate_and_upload_thumbnail(output_path, self.email, cloudinary_service)
+        if need_thumbnail:
+            thumbnail_url = await self.__generate_and_upload_thumbnail(output_path, self.email, cloudinary_service)
         
         # delete output video file after upload
         if os.path.exists(output_path):
@@ -284,7 +316,7 @@ class VideoService:
         return {
             "video": video_url,
             "topic": self.topic,
-            "thumbnail": thumbnail_url,
+            "thumbnail": thumbnail_url if need_thumbnail else None,
             "music": music,
             "text_effect": text_effect,
             "stickers": stickers,

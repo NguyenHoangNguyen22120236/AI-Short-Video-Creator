@@ -27,8 +27,6 @@ export default function EditModal({
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const hasChanged = () => {
-    console.log(selectedEffect);
-    console.log(currentData.selectedEffect);
     return (
       selectedEffect !== currentData.selectedEffect ||
       currentMusic !== currentData.currentMusic ||
