@@ -9,6 +9,7 @@ from app.models.video import Video
 from fastapi import HTTPException
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
+import os
 
 class VideoController:
     @staticmethod
