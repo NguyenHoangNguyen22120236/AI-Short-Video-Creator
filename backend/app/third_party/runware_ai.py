@@ -1,54 +1,58 @@
-import os
+import os, asyncio, httpx
+from httpx import Timeout, Limits, HTTPStatusError
 from dotenv import load_dotenv
-import httpx
 
 load_dotenv()
 
 class RunwareAI:
-    def __init__(self):
-        pass
+    _client: httpx.AsyncClient | None = None           # client “singleton”
+    _sem    = asyncio.Semaphore(4)                     # tối đa 4 request song song
 
-    async def generate_image(self, prompt):
-        
-        '''url = f"https://image.pollinations.ai/prompt/{prompt}?width=360&height=640"
-        response = requests.get(url)
-
-    
-        if response.status_code == 200:
-            return response
-        else:
-            raise Exception(f"Error: {response.status_code} - {response.text}")'''
-        
-
+    def __init__(self) -> None:
         api_key = os.getenv("STABILITY_API_KEY")
+        if not api_key:
+            raise RuntimeError("Missing STABILITY_API_KEY")
+        self._headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Accept": "image/*"
+        }
 
-        if api_key is None:
-            raise Exception("Missing Stability API key.")
-
-        url = "https://api.stability.ai/v2beta/stable-image/generate/core"
-
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            response = await client.post(
-                url,
-                headers={
-                    "Authorization": f"Bearer {api_key}",
-                    "Accept": "image/*"
-                },
-                files={"none": (None, '')},  # Required for Stability AI compatibility
-                data={
-                    "prompt": prompt,
-                    "output_format": "png",
-                    "aspect_ratio": "9:16"
-                },
+    # -------- internal --------
+    @classmethod
+    async def _get_client(cls) -> httpx.AsyncClient:
+        if cls._client is None:
+            cls._client = httpx.AsyncClient(
+                base_url="https://api.stability.ai",
+                http2=True,                           # bật HTTP/2
+                timeout=Timeout(60.0),
+                limits=Limits(max_connections=100, max_keepalive_connections=20),
             )
+        return cls._client
 
+    # -------- public API --------
+    async def generate_image(self, prompt: str, aspect_ratio="9:16") -> bytes:
+        async with self._sem:                         # tránh spam server
+            client = await self._get_client()
             try:
-                response.raise_for_status()
-            except httpx.HTTPStatusError as exc:
-                try:
-                    error_detail = response.json()
-                except Exception:
-                    error_detail = response.text
-                raise Exception(f"Failed to generate image: {error_detail}") from exc
+                resp = await client.post(
+                    "/v2beta/stable-image/generate/core",
+                    headers=self._headers,
+                    files={"none": (None, "")},       # multipart bắt buộc
+                    data={
+                        "prompt": prompt,
+                        "output_format": "png",
+                        "aspect_ratio": aspect_ratio,
+                    },
+                )
+                resp.raise_for_status()
+                return resp.content                   # bytes PNG
+            except HTTPStatusError as exc:
+                raise RuntimeError(
+                    f"Stability API error {exc.response.status_code}: {exc.response.text}"
+                ) from exc
 
-            return response.content
+    @classmethod
+    async def aclose(cls):                            # gọi khi shutdown
+        if cls._client:
+            await cls._client.aclose()
+            cls._client = None

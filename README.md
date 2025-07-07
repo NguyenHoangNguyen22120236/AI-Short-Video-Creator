@@ -45,8 +45,8 @@ Make sure you have the following installed on your machine:
 
    Create a **.env** file in **backend/** directory:
    ```bash
-   # DeepSeek AI Key
-   DEEPSEEK_API_KEY=your_deepseek_api_key
+   # OpenAI Key
+   OPENAI_API_KEY=your_openai_api_key
 
    # SERP (Search API) Key
    SERP_API_KEY=your_serp_api_key

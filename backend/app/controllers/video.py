@@ -20,6 +20,9 @@ class VideoController:
         try:
             subtitles_service = SubtitlesService(topic=topic, language_code=language_code)
             subtitles = await subtitles_service.generate_subtitles()
+            print(f"Generated subtitles: {subtitles}")
+            
+            #subtitles=['Những con phố Hà Nội khoác lên mình làn sương mỏng như tơ, mặt hồ Gươm lặng in bóng những hàng liễu rủ. Tiếng leng keng xe đạp hòa cùng mùi cốm non thoảng nhẹ trong gió.', 'Nắng thu vàng óng trải dài trên mặt hồ Tây, soi bóng những quán cà phê nhỏ. Người dân thong thả nhấp chén trà nóng, lắng nghe tiếng lá xào xạc rơi bên thềm.', 'Những đứa trẻ nô đùa trên hè phố, tung tăng đuổi theo chiếc lá bàng đỏ thắm. Mùi hoa sữa nồng nàn phả vào không gian, gợi nhớ giọng rao hàng chè sen ngọt lịm.', 'Hoàng hôn nhuộm tím góc trời, hàng cây khẽ đung đưa như thì thầm lời tạm biệt. Hà Nội mùa thu – khúc giao mùa dịu dàng, lưu luyến bước chân ai vội vã hay chậm rãi.']
             
             audio_service = AudioService()
             image_service = ImageService()
@@ -29,12 +32,7 @@ class VideoController:
                 image_service.generate_image(subtitles=subtitles, email=email)
             )
             
-            '''subtitles=[
-                'In a tiny Albuquerque garage, two college dropouts tapped at humming computers. Bill Gates and Paul Allen dreamed of putting "a PC in every home," sparking a revolution with code scrawled on napkins.',
-                'By the 1990s, Windows 95 swept the globe, its iconic start menu a portal to the digital age. Offices buzzed with clacking keyboards; homes lit up with dial-up tones—Microsoft reimagined how the world connected.',
-                'The 2000s brought storms: antitrust lawsuits, rivals rising. But from the chaos emerged Xbox’s roar, Azure’s cloud empires, and Cortana’s voice—a phoenix pivoting to futures unimagined by its founders.',
-                'Today, under Satya Nadella’s gaze, AI breathes in PowerPoint drafts, holograms dance in boardrooms, and quantum code cracks cosmic puzzles. Microsoft doesn’t just adapt—it bends the horizon, whispering, “What’s next?”'
-            ]
+            '''
             
             audio_urls = [
                 'app/public/audios/nhnguyen135716@gmail.com-output0.mp3',
@@ -97,13 +95,13 @@ class VideoController:
         
         finally:
             #delete files after video creation
-            '''for i in range(4):
+            for i in range(4):
                 image_path = f'app/public/images/{email}-output{i}.png'
                 audio_path = f'app/public/audios/{email}-output{i}.mp3'
                 if os.path.exists(image_path):
                     os.remove(image_path)
                 if os.path.exists(audio_path):
-                    os.remove(audio_path)'''      
+                    os.remove(audio_path)
         return result, 200
     
     

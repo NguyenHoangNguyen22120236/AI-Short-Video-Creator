@@ -1,4 +1,4 @@
-from app.third_party.deepseek import DeepSeek
+from app.third_party.openai import OpenAI
 import logging
 
 logger = logging.getLogger(__name__)
@@ -27,9 +27,9 @@ class SubtitlesService:
                         [Fifth section of story]  
 
                         Now write about: {self.topic}. Write in {'English' if self.language_code == 'en-US' else 'Vietnamese'} language.'''
-            deepseek = DeepSeek()
+            openai = OpenAI()
             
-            subtitles = await deepseek.generate_subtitles(prompt)
+            subtitles = await openai.generate_subtitles(prompt)
             
         except Exception as e:
             raise Exception(f"Error generating subtitles: {str(e)}")

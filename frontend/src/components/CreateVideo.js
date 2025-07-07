@@ -142,7 +142,7 @@ export default function CreateVideo() {
         </select>
       </div>
 
-      {isGenerating && <LoadingStatus message='Generating (It can take to 5 minutes due to high volume traffic)'/>}
+      {isGenerating && <LoadingStatus message='Generating'/>}
 
       <UpdateStatusModal
         showUpdateModal={showUpdateModal}
